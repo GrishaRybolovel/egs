@@ -6,45 +6,6 @@ from django.db import models
 from django.db.models import QuerySet
 
 
-class Tasks(models.Model):
-    projects = models.ForeignKey(
-        "core.Projects",
-        on_delete=models.deletion.SET_NULL,
-        related_name="projects",
-        db_index=True,
-        null=True,
-        blank=False
-    )
-    pass
-
-
-class Projects(models.Model):
-    name = models.CharField(max_length=255)
-    contract = models.CharField(max_length=255)
-    status = models.BooleanField(default=True)
-    date = models.DateTimeField(auto_now=True)
-    tasks = models.ForeignKey(
-        "core.Tasks",
-        on_delete=models.deletion.SET_NULL,
-        related_name="tasks",
-        db_index=True,
-        null=True,
-        blank=False
-    )
-    calendar = models.CharField(max_length=255)
-    card = models.ForeignKey(
-        "core.Cards",
-        on_delete=models.deletion.SET_PROTECT,
-    )
-
-
-
-    #One to many Tasks
-    #Many to many Employees
-    @property
-    def tasks(self) -> QuerySet[Tasks]:
-        return self.tasks.all()
-
 class Employees(models.Model):
     name = models.CharField(max_length=63)
     surname = models.CharField(max_length=63)
@@ -100,5 +61,83 @@ class Employees(models.Model):
     retraining = models.CharField(max_length=255)
     status = models.BooleanField()
 
-class Cards(models.Model):
-    ...
+
+class Messages(models.Model):
+    message = models.CharField()
+    author = models.ForeignKey(
+        "core.Employees",
+        on_delete=models.deletion.SET_NULL
+    )
+    task = models.ForeignKey(
+        "core.Tasks",
+        on_delete=models.deletion.SET_NULL
+    )
+
+
+
+class Tasks(models.Model):
+    author = models.CharField(max_length=255)
+    created = models.DateTimeField()
+    completion = models.DateTimeField()
+    projects = models.ForeignKey(
+        "core.Projects",
+        on_delete=models.deletion.SET_NULL,
+    )
+
+    @property
+    def messages(self) -> QuerySet[Messages]:
+        return self.tasks.all()
+
+    @property
+    def employees(self) -> QuerySet[Employees]:
+        return self.tasks.all()
+
+
+
+class Projects(models.Model):
+    STATUS_CHOICES = [
+        ('IWrk', 'В работе'),
+        ('PNR', 'ПНР'),
+        ('SOff', 'В работе'),
+        ('SMR', 'СМР'),
+        ('AOff', 'Аварийное откл.')
+    ]
+    SEASONING_CHOICES = [
+        ('Seas', 'Сезонная'),
+        ('Fyea', 'Круглогодичная')
+    ]
+
+    name = models.CharField(max_length=255)
+    contract = models.CharField(max_length=255)
+    status = models.BooleanField(default=True)
+    date_creation = models.DateTimeField(auto_now=True)
+    date_notification = models.DateTimeField()
+    object_type = models.CharField(max_length=255)
+    address = models.CharField(max_length=255)
+    contact = models.CharField(max_length=255)
+    phone = models.CharField(max_length=255)
+    email = models.CharField(max_length=255)
+    status = models.CharField(
+        max_length=4,
+        choices=STATUS_CHOICES,
+        default='IWrk'
+    )
+    seasoning = models.CharField(
+        max_length=4,
+        choices=SEASONING_CHOICES,
+        default='Seas'
+    )
+    cost = models.IntegerField()
+    calendar = models.CharField(max_length=255)
+    card = models.ForeignKey(
+        "core.Cards",
+        on_delete=models.deletion.SET_PROTECT
+    )
+
+
+
+    #One to many Tasks
+    #Many to many Employees
+    @property
+    def tasks(self) -> QuerySet[Tasks]:
+        return self.tasks.all()
