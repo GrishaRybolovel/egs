@@ -46,8 +46,15 @@ class Projects(models.Model):
         return self.tasks.all()
 
 class Employees(models.Model):
-    pass
+    name = models.CharField(max_length=255)
+    role = models.CharField(max_length=255)
+    phone = models.CharField(max_length=255)
+    email = models.CharField(max_length=255)
+    post = models.CharField(max_length=255)
+    status = models.BooleanField()
 
+class Properties(models.Model):
+    ...
 
 class Cards(models.Model):
     ...
