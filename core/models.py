@@ -7,16 +7,16 @@ from django.db.models import QuerySet
 
 
 class Employees(models.Model):
-    name = models.CharField(max_length=63)
-    surname = models.CharField(max_length=63)
-    last_name = models.CharField(max_length=63)
-    phone = models.CharField(max_length=255)
-    email = models.CharField(max_length=255)
-    address = models.CharField(max_length=255)
-    date_of_birth = models.DateField
-    date_of_start = models.DateField
-    login = models.CharField(max_length=63)
-    password = models.CharField(max_length=256)
+    name = models.CharField(max_length=63, verbose_name='Имя')
+    surname = models.CharField(max_length=63, verbose_name='Фамилия')
+    last_name = models.CharField(max_length=63, blank=True, verbose_name='Отчество')
+    phone = models.CharField(max_length=255, blank=True, verbose_name='Телефон')
+    email = models.CharField(max_length=255, blank=True, verbose_name='Почта')
+    address = models.CharField(max_length=255, blank=True, verbose_name='Адрес')
+    date_of_birth = models.DateField(editable=True, verbose_name='Дата рождения')
+    date_of_start = models.DateField(editable=True, verbose_name='Дата начала')
+    login = models.CharField(max_length=255, blank=True, verbose_name='Логин')
+    password = models.CharField(max_length=255, blank=True, verbose_name='Пароль')
     ROLE_IN_SYSTEM_CHOICES = [
         ('DI', 'Директор'),
         ('ME', 'Менеджер/Инженер'),
@@ -25,72 +25,114 @@ class Employees(models.Model):
         ('RN', 'Руководитель направления'),
         ('KS', 'Кадровый специалист')
     ]
-    role = models.CharField(max_length=2,
+    role = models.CharField(max_length=3,
                             choices=ROLE_IN_SYSTEM_CHOICES,
-                            default='RA')
-    inn = models.CharField(max_length=256)
-    snils = models.CharField(max_length=256)
-    passport = models.CharField(max_length=256)
+                            default='RA',
+                            verbose_name='Роль')
+    inn = models.CharField(max_length=256, blank=True, verbose_name='ИНН')
+    snils = models.CharField(max_length=256, blank=True, verbose_name='СНИЛС')
+    passport = models.CharField(max_length=256, blank=True, verbose_name='Паспорт')
     COMPANY_CHOICES = [
         ('GP', 'ГАЗСПЕЦПРОЕКТ'),
         ('NG', 'Не ГАЗСПЕЦПРОЕКТ')
     ]
-    company = models.CharField(max_length=2,
+    company = models.CharField(max_length=3,
                             choices=COMPANY_CHOICES,
-                            default='GP')
+                            default='GP',
+                            verbose_name='Компания')
     DIVISION_CHOICES = [
         ('GSP', 'ГАЗСПЕЦПРОЕКТ'),
         ('PTO', 'Производственно-технический отдел (ПТО)'),
         ('WGP', 'Водгазпроект')
     ]
-    division = models.CharField(max_length=2,
+    division = models.CharField(max_length=3,
                                choices=DIVISION_CHOICES,
-                               default='GSP')
+                               default='GSP',
+                               verbose_name='Отделение')
     leader = models.ForeignKey(
         "self",
-        on_delete=models.deletion.SET_NULL,
-        related_name="leader",
-        db_index=True,
+        on_delete=models.deletion.CASCADE,
         null=True,
-        blank=False
+        blank=True,
+        verbose_name='Начальник'
     )
-    post = models.CharField(max_length=255)
-    info_about_relocate = models.CharField(max_length=511)
-    attestation = models.CharField(max_length=255)
-    qualification = models.CharField(max_length=255)
-    retraining = models.CharField(max_length=255)
-    status = models.BooleanField()
+    post = models.CharField(max_length=255, blank=True, verbose_name='Должность')
+    info_about_relocate = models.CharField(max_length=511, blank=True, verbose_name='Информация о переводе')
+    attestation = models.CharField(max_length=255, blank=True, verbose_name='Аттестация')
+    qualification = models.CharField(max_length=255, blank=True, verbose_name='Повышение квалификации')
+    retraining = models.CharField(max_length=255, blank=True, verbose_name='Проф. подготовка')
+    status = models.BooleanField(verbose_name='Статус')
+
+
+    employee_to_task = models.ManyToManyField(
+        "Tasks",
+        related_name="employees",
+        blank=True,
+        verbose_name='Задания'
+    )
+    employee_to_project = models.ManyToManyField(
+        "Projects",
+        related_name="projects",
+        blank=True,
+        verbose_name='Объекты'
+    )
+
+    def __str__(self):
+        return self.name + " " + self.surname
+
+    class Meta:
+        verbose_name = 'Сотрудники'
+        verbose_name_plural = 'Сотрудники'
+
 
 
 class Messages(models.Model):
-    message = models.CharField()
+    message = models.CharField(max_length=1024, verbose_name='Сообщение')
     author = models.ForeignKey(
-        "core.Employees",
-        on_delete=models.deletion.SET_NULL
+        "Employees",
+        on_delete=models.deletion.PROTECT,
+
     )
     task = models.ForeignKey(
-        "core.Tasks",
-        on_delete=models.deletion.SET_NULL
+        "Tasks",
+        on_delete=models.deletion.PROTECT,
+        related_name="messages"
     )
+
+    def __str__(self):
+        return self.message
+
+    class Meta:
+        verbose_name = 'Сообщения'
+        verbose_name_plural = 'Сообщения'
 
 
 
 class Tasks(models.Model):
-    author = models.CharField(max_length=255)
-    created = models.DateTimeField()
-    completion = models.DateTimeField()
+    name = models.CharField(max_length=1023, verbose_name='Задание', blank=True)
+    author = models.CharField(max_length=255, verbose_name='Автор')
+    created = models.DateTimeField(verbose_name='Дата создания')
+    completion = models.DateTimeField(verbose_name='Срок выполнения')
     projects = models.ForeignKey(
-        "core.Projects",
-        on_delete=models.deletion.SET_NULL,
+        "Projects",
+        on_delete=models.deletion.PROTECT,
+        related_name="tasks"
     )
 
     @property
     def messages(self) -> QuerySet[Messages]:
-        return self.tasks.all()
+        return self.messages.all()
 
     @property
     def employees(self) -> QuerySet[Employees]:
-        return self.tasks.all()
+        return self.employees.all()
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Задачи'
+        verbose_name_plural = 'Задачи'
 
 
 
@@ -107,37 +149,38 @@ class Projects(models.Model):
         ('Fyea', 'Круглогодичная')
     ]
 
-    name = models.CharField(max_length=255)
-    contract = models.CharField(max_length=255)
-    status = models.BooleanField(default=True)
-    date_creation = models.DateTimeField(auto_now=True)
-    date_notification = models.DateTimeField()
-    object_type = models.CharField(max_length=255)
-    address = models.CharField(max_length=255)
-    contact = models.CharField(max_length=255)
-    phone = models.CharField(max_length=255)
-    email = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, verbose_name='Название')
+    contract = models.CharField(max_length=255, blank=True, verbose_name='Договор')
+    date_creation = models.DateTimeField(auto_now=True, verbose_name='Дата договора')
+    date_notification = models.DateTimeField(editable=True, verbose_name='Дата(для оповещения)')
+    object_type = models.CharField(max_length=255, blank=True, verbose_name='Тип объекта')
+    address = models.CharField(max_length=255, blank=True, verbose_name='Адрес')
+    contact = models.CharField(max_length=255, blank=True, verbose_name='Контактный человек')
+    phone = models.CharField(max_length=255, blank=True, verbose_name='Контактный телефон')
+    email = models.CharField(max_length=255, blank=True, verbose_name='Контактный e-mail')
     status = models.CharField(
         max_length=4,
         choices=STATUS_CHOICES,
-        default='IWrk'
+        default='IWrk',
+        verbose_name='Статус объекта'
     )
     seasoning = models.CharField(
         max_length=4,
         choices=SEASONING_CHOICES,
-        default='Seas'
+        default='Seas',
+        verbose_name='Сезонность'
     )
-    cost = models.IntegerField()
-    calendar = models.CharField(max_length=255)
-    card = models.ForeignKey(
-        "core.Cards",
-        on_delete=models.deletion.SET_PROTECT
-    )
+    cost = models.IntegerField(blank=True, verbose_name='Цена обслуживания')
 
-
+    def __str__(self):
+        return self.name
 
     #One to many Tasks
     #Many to many Employees
     @property
     def tasks(self) -> QuerySet[Tasks]:
         return self.tasks.all()
+
+    class Meta:
+        verbose_name = 'Объекты'
+        verbose_name_plural = 'Объекты'
