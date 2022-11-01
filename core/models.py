@@ -126,7 +126,8 @@ class Tasks(models.Model):
     projects = models.ForeignKey(
         "Projects",
         on_delete=models.deletion.PROTECT,
-        related_name="tasks"
+        related_name="tasks",
+        verbose_name='Проект'
     )
 
     @property
