@@ -77,6 +77,13 @@ class Employees(models.Model):
         verbose_name='Объекты'
     )
 
+    employee_to_document = models.ManyToManyField(
+        "Documents",
+        related_name="employee_to_doc",
+        blank=True,
+        verbose_name='Документы'
+    )
+
     def __str__(self):
         return self.name + " " + self.surname
 
@@ -98,6 +105,8 @@ class Messages(models.Model):
         on_delete=models.deletion.PROTECT,
         related_name="messages"
     )
+
+    doc = models.FileField(upload_to='uploads_messages/', editable=True)
 
     def __str__(self):
         return self.message
@@ -172,6 +181,13 @@ class Projects(models.Model):
     )
     cost = models.IntegerField(blank=True, verbose_name='Цена обслуживания')
 
+    project_to_document = models.ManyToManyField(
+        "Documents",
+        related_name="project_to_doc",
+        blank=True,
+        verbose_name='Документы'
+    )
+
     def __str__(self):
         return self.name
 
@@ -184,3 +200,39 @@ class Projects(models.Model):
     class Meta:
         verbose_name = 'Объекты'
         verbose_name_plural = 'Объекты'
+
+
+class Documents(models.Model):
+
+    ROLE_IN_SYSTEM_CHOICES = [
+        ('WO', 'Без статуса'),
+        ('CH', 'Черновик'),
+        ('NS', 'На согласовании'),
+        ('CU', 'Действующий'),
+        ('CO', 'Завершённый'),
+        ('RA', 'Расторгнутый'),
+        ('AN', 'Аннулированный')
+    ]
+
+    name = models.CharField(max_length=255, verbose_name='Наименование документа')
+    status = models.CharField(max_length=4,
+                              choices=ROLE_IN_SYSTEM_CHOICES,
+                              default='CU',
+                              verbose_name='Статус')
+    duration = models.DateField(editable=True, verbose_name='Срок действия')
+    doc = models.FileField(upload_to='uploads/', editable=True)
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def employees(self) -> QuerySet['Employees']:
+        return self.employee_to_doc.all()
+
+    @property
+    def projects(self) -> QuerySet['Projects']:
+        return self.project_to_doc.all()
+
+    class Meta:
+        verbose_name = 'Документы'
+        verbose_name_plural = 'Документы'

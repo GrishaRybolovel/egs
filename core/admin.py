@@ -23,8 +23,14 @@ class TasksAdmin(admin.ModelAdmin):
 
 class ProjectsAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'contract', 'status', 'date_creation')
+    search_fields = ('id',)
+
+class DocumentsAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'status', 'duration', 'doc')
+    search_fields = ('id', 'name')
 
 admin.site.register(Employees, EmployeesAdmin)
 admin.site.register(Messages, MessagesAdmin)
 admin.site.register(Tasks, TasksAdmin)
 admin.site.register(Projects, ProjectsAdmin)
+admin.site.register(Documents, DocumentsAdmin)
