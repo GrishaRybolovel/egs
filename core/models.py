@@ -98,15 +98,16 @@ class Messages(models.Model):
     author = models.ForeignKey(
         "Employees",
         on_delete=models.deletion.PROTECT,
-
+        verbose_name='Автор'
     )
     task = models.ForeignKey(
         "Tasks",
         on_delete=models.deletion.PROTECT,
-        related_name="messages"
+        related_name="messages",
+        verbose_name='Задание'
     )
 
-    doc = models.FileField(upload_to='uploads_messages/', editable=True)
+    doc = models.FileField(upload_to='uploads_messages/', editable=True, verbose_name='Документ')
 
     def __str__(self):
         return self.message
@@ -220,7 +221,7 @@ class Documents(models.Model):
                               default='CU',
                               verbose_name='Статус')
     duration = models.DateField(editable=True, verbose_name='Срок действия')
-    doc = models.FileField(upload_to='uploads/', editable=True)
+    doc = models.FileField(upload_to='uploads/', editable=True, verbose_name='Документ')
 
     def __str__(self):
         return self.name
