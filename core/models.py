@@ -151,7 +151,7 @@ class Projects(models.Model):
     STATUS_CHOICES = [
         ('IWrk', 'В работе'),
         ('PNR', 'ПНР'),
-        ('SOff', 'В работе'),
+        ('SOff', 'Сезон откл.'),
         ('SMR', 'СМР'),
         ('AOff', 'Аварийное откл.')
     ]
