@@ -13,8 +13,8 @@ class Employees(models.Model):
     phone = models.CharField(max_length=255, blank=True, verbose_name='Телефон')
     email = models.CharField(max_length=255, blank=True, verbose_name='Почта')
     address = models.CharField(max_length=255, blank=True, verbose_name='Адрес')
-    date_of_birth = models.DateField(editable=True, verbose_name='Дата рождения')
-    date_of_start = models.DateField(editable=True, verbose_name='Дата начала')
+    date_of_birth = models.DateField(verbose_name='Дата рождения')
+    date_of_start = models.DateField(verbose_name='Дата начала')
     login = models.CharField(max_length=255, blank=True, verbose_name='Логин')
     password = models.CharField(max_length=255, blank=True, verbose_name='Пароль')
     ROLE_IN_SYSTEM_CHOICES = [
@@ -107,7 +107,7 @@ class Messages(models.Model):
         verbose_name='Задание'
     )
 
-    doc = models.FileField(upload_to='uploads_messages/', editable=True, verbose_name='Документ')
+    doc = models.FileField(null=True, blank=True, upload_to='uploads_messages/', verbose_name='Документ')
 
     def __str__(self):
         return self.message
@@ -120,9 +120,14 @@ class Messages(models.Model):
 
 class Tasks(models.Model):
     name = models.CharField(max_length=1023, verbose_name='Задание', blank=True)
-    author = models.CharField(max_length=255, verbose_name='Автор')
+    author = models.ForeignKey(
+        "Employees",
+        on_delete=models.deletion.CASCADE,
+        verbose_name='Автор'
+    )
     created = models.DateTimeField(verbose_name='Дата создания')
     completion = models.DateTimeField(verbose_name='Срок выполнения')
+    done = models.DateTimeField(verbose_name='Дата выполнения', null=True, blank=True)
     projects = models.ForeignKey(
         "Projects",
         on_delete=models.deletion.PROTECT,
@@ -163,7 +168,7 @@ class Projects(models.Model):
     name = models.CharField(max_length=255, verbose_name='Название')
     contract = models.CharField(max_length=255, blank=True, verbose_name='Договор')
     date_creation = models.DateTimeField(auto_now=True, verbose_name='Дата договора')
-    date_notification = models.DateTimeField(editable=True, verbose_name='Дата(для оповещения)')
+    date_notification = models.DateTimeField(verbose_name='Дата(для оповещения)')
     object_type = models.CharField(max_length=255, blank=True, verbose_name='Тип объекта')
     address = models.CharField(max_length=255, blank=True, verbose_name='Адрес')
     contact = models.CharField(max_length=255, blank=True, verbose_name='Контактный человек')
@@ -221,8 +226,8 @@ class Documents(models.Model):
                               choices=ROLE_IN_SYSTEM_CHOICES,
                               default='CU',
                               verbose_name='Статус')
-    duration = models.DateField(editable=True, verbose_name='Срок действия')
-    doc = models.FileField(upload_to='uploads/', editable=True, verbose_name='Документ')
+    duration = models.DateField(verbose_name='Срок действия')
+    doc = models.FileField(upload_to='uploads/', verbose_name='Документ')
 
     def __str__(self):
         return self.name

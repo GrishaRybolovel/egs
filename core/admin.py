@@ -16,7 +16,7 @@ class MessagesAdmin(admin.ModelAdmin):
 
 
 class TasksAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'author', 'created', 'completion')
+    list_display = ('id', 'name', 'author', 'created', 'completion', 'done')
     list_display_links = ('id',)
     search_fields = ('id', 'author')
 
