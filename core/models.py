@@ -137,11 +137,11 @@ class Tasks(models.Model):
 
     @property
     def messages(self) -> QuerySet[Messages]:
-        return self.messages.all()
+        return Messages.objects.filter(task__name=self.name)
 
     @property
     def employees(self) -> QuerySet[Employees]:
-        return self.employees.all()
+        return Employees.objects.filter(employee_to_task__name=self.name)
 
     def __str__(self):
         return self.name
@@ -202,7 +202,7 @@ class Projects(models.Model):
     #Many to many Employees
     @property
     def tasks(self) -> QuerySet[Tasks]:
-        return self.tasks.all()
+        return Tasks.objects.filter(projects__name=self.name)
 
     class Meta:
         verbose_name = 'Объекты'
