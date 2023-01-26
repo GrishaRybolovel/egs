@@ -107,6 +107,8 @@ class Messages(models.Model):
         verbose_name='Задание'
     )
 
+    time = models.DateTimeField(auto_now=True)
+
     doc = models.FileField(null=True, blank=True, upload_to='uploads_messages/', verbose_name='Документ')
 
     def __str__(self):
@@ -137,7 +139,7 @@ class Tasks(models.Model):
 
     @property
     def messages(self) -> QuerySet[Messages]:
-        return Messages.objects.filter(task__name=self.name)
+        return Messages.objects.filter(task__name=self.name).order_by('-author__date_of_birth')
 
     @property
     def employees(self) -> QuerySet[Employees]:

@@ -43,4 +43,10 @@ def get_task_by_id(request, id):
     task = Tasks.objects.get(id=id)
     members = task.employees
     messages = task.messages
-    return HttpResponse(f'Done')
+    context = {
+        'user': request.user,
+        'task': task,
+        'members': members,
+        'messages': messages.all().order_by('time')
+    }
+    return render(request, template_name='core/task.html', context=context)
