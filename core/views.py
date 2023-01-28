@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 from core.models import *
 
-from . models import Tasks
+from . models import Tasks, Projects
 
 
 @login_required(login_url='login')
@@ -65,8 +65,24 @@ def register(request):
             form = CreateUserForm()
         return render(request, 'core/register.html', {'form': form})
 
+
 def forgot_password(request):
     return render(request, 'core/forgot-password.html')
+
+
+@login_required(login_url='login')
+def objects(request):
+    objects = Projects.objects.all()
+    print(objects[0].tasks.all())
+    for element in objects[0].tasks.all():
+        print(element)
+    context = {'objects' : objects}
+    return render(request, 'core/objects.html', context=context)
+
+
+def show_tasks(request, id):
+    context = {'tasks' : Tasks.objects.filter(projects__name=Projects.objects.get(pk=id).name)}
+    return render(request, template_name='core/tasks.html', context=context)
 
 
 def get_task_by_id(request, id):

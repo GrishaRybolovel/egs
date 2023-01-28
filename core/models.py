@@ -204,7 +204,8 @@ class Projects(models.Model):
     #Many to many Employees
     @property
     def tasks(self) -> QuerySet[Tasks]:
-        return Tasks.objects.filter(projects__name=self.name)
+        f = Tasks.objects.filter(projects__name=self.name)
+        return f
 
     class Meta:
         verbose_name = 'Объекты'
