@@ -1,0 +1,88 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">Объекты</h1>
+    <p class="mb-4">Объекты</p>
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Объекты</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="110%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Договор</th>
+                            <th>Статус</th>
+                            <th>Сезон</th>
+                            <th>Адрес</th>
+                            <th>Дата созд.</th>
+                            <th>Задачи</th>
+                            <th>КИП</th>
+                            <th>ПК</th>
+                            <th>Календарь</th>
+                            <th>Карточка</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Договор</th>
+                            <th>Статус</th>
+                            <th>Сезон</th>
+                            <th>Адрес</th>
+                            <th>Дата созд.</th>
+                            <th>Задачи</th>
+                            <th>КИП</th>
+                            <th>ПК</th>
+                            <th>Календарь</th>
+                            <th>Карточка</th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                    {% for object in objects %}
+                        <tr>
+                            <td><a href="edit/{{ object.id }}">{{ object.id }}</a></td>
+                            <td>{{ object.name }}</td>
+                            <td>{{ object.contract }}</td>
+                            {% if object.status == 'IWrk' %}
+                                <td bgcolor="#1cc88a">В работе</td>
+                            {% elif object.status == 'PNR' %}
+                                <td bgcolor="#f6c23e">ПНР</td>
+                            {% elif object.status == 'SOff' %}
+                                <td bgcolor="#858796">Сезон откл.</td>
+                            {% elif object.status == 'SMR' %}
+                                <td bgcolor="#4e73df">СМР</td>
+                            {% elif object.status == 'AOff' %}
+                                <td bgcolor="#e74a3b">Аварийное откл.</td>
+                            {% endif %}
+                            {% if object.seasoning == 'Seas' %}
+                                <td>Сезонная</td>
+                            {% elif object.seasoning == 'Fyea' %}
+                                <td>Круглогодичная</td>
+                            {% endif %}
+                            <td>{{ object.address }}</td>
+                            <td>{{ object.date_creation }}</td>
+                            <td><a href="{% url 'show_tasks' id=object.id %}" class="label label-table label-success ">{{ object.tasks.count }}</a></td>
+                            <td>{{ object.id }}</td>
+                            <td>{{ object.id }}</td>
+                            <td><a href="calendar/{{ object.id }}"></a></td>
+                            <td><a href="{% url 'card' id=object.id %}">Карточка</a></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
