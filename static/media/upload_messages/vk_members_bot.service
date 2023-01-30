@@ -1,0 +1,14 @@
+[Unit] 
+Description=bot_vk_members
+After=network.target 
+ 
+[Service] 
+Type=simple
+User=root
+WorkingDirectory=/home/django/django_venv/src/vk_members_bot
+ExecStart=/usr/bin/python3 /home/django/django_venv/src/vk_members_bot/main.py
+RestartSec=10
+Restart=always
+ 
+[Install] 
+WantedBy=multi-user.target 

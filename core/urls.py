@@ -1,5 +1,10 @@
 from django.urls import path
+from django.urls import re_path
+from django.conf.urls.static import static
+from django.views.static import serve
 
+from egs.settings import *
+from egs import settings
 from .views import *
 
 urlpatterns = [
@@ -13,3 +18,4 @@ urlpatterns = [
      path('logout/', logoutUser, name='logout'),
      path('forgot-password/', forgot_password, name='forgot_password'),
 ]
+

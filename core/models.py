@@ -109,10 +109,13 @@ class Messages(models.Model):
 
     time = models.DateTimeField(auto_now=True)
 
-    doc = models.FileField(null=True, blank=True, upload_to='uploads_messages/', verbose_name='Документ')
+    doc = models.FileField(null=True, blank=True, upload_to='upload_messages', verbose_name='Документ')
 
     def __str__(self):
         return self.message
+
+    def has_file(self):
+        return bool(self.doc)
 
     class Meta:
         verbose_name = 'Сообщения'

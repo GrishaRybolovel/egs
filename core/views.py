@@ -146,3 +146,13 @@ def get_task_by_id(request, id):
         'messages': messages.all().order_by('time')
     }
     return render(request, template_name='core/task.html', context=context)
+
+def download(request, path):
+    file_path = os.path.join(settings.MEDIA_ROOT, path)
+    if os.path.exists(file_path):
+        with open(file_path, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/adminupload")
+            response['Content-Disposition']='inline; filename='+os.path.base_name(file_path)
+            return response
+
+    raise Http404

@@ -380,7 +380,10 @@
                                     {{ message.author.surname }} {{ message.author.name }} {{ message.author.last_name }}   |  {{ message.time }}
                                 </div>
                                 <div class="card-body">
-                                    {{ message.message }}
+                                    <p> {{ message.message }} </p>
+                                    {% if message.has_file %}
+                                        <a href="{{ message.doc.url }}" download="{{ message.doc.url }}"> Скачать прикрепленный файл </a>
+                                    {% endif %}
                                 </div>
                             </div>
                         {% endfor %}
