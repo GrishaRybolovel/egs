@@ -127,8 +127,8 @@ class Tasks(models.Model):
         on_delete=models.deletion.CASCADE,
         verbose_name='Автор'
     )
-    created = models.DateTimeField(verbose_name='Дата создания')
-    completion = models.DateTimeField(verbose_name='Срок выполнения')
+    created = models.DateField(verbose_name='Дата создания')
+    completion = models.DateField(verbose_name='Срок выполнения')
     done = models.DateTimeField(verbose_name='Дата выполнения', null=True, blank=True)
     projects = models.ForeignKey(
         "Projects",
@@ -169,8 +169,8 @@ class Projects(models.Model):
 
     name = models.CharField(max_length=255, verbose_name='Название')
     contract = models.CharField(max_length=255, blank=True, verbose_name='Договор')
-    date_creation = models.DateTimeField(auto_now=True, verbose_name='Дата договора')
-    date_notification = models.DateTimeField(verbose_name='Дата(для оповещения)')
+    date_creation = models.DateField(verbose_name='Дата договора')
+    date_notification = models.DateField(verbose_name='Дата(для оповещения)')
     object_type = models.CharField(max_length=255, blank=True, verbose_name='Тип объекта')
     address = models.CharField(max_length=255, blank=True, verbose_name='Адрес')
     contact = models.CharField(max_length=255, blank=True, verbose_name='Контактный человек')
@@ -188,7 +188,7 @@ class Projects(models.Model):
         default='Seas',
         verbose_name='Сезонность'
     )
-    cost = models.IntegerField(blank=True, verbose_name='Цена обслуживания')
+    cost = models.IntegerField(blank=True, null=True, verbose_name='Цена обслуживания')
 
     project_to_document = models.ManyToManyField(
         "Documents",
@@ -205,6 +205,11 @@ class Projects(models.Model):
     @property
     def tasks(self) -> QuerySet[Tasks]:
         f = Tasks.objects.filter(projects__name=self.name)
+        return f
+
+    @property
+    def employee(self) -> QuerySet[Tasks]:
+        f = Employees.objects.filter(employee_to_project__name=self.name)
         return f
 
     class Meta:

@@ -2,9 +2,10 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
-from .forms import CreateUserForm
+from .forms import CreateUserForm, ProjectForm
 from django.contrib.auth.models import User
 from django.contrib import messages
+import datetime
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -72,6 +73,7 @@ def forgot_password(request):
 
 @login_required(login_url='login')
 def objects(request):
+
     objects = Projects.objects.all()
     print(objects[0].tasks.all())
     for element in objects[0].tasks.all():
@@ -86,8 +88,52 @@ def show_tasks(request, id):
 
 
 def object_edit(request, id):
-    context = {'object' : Projects.objects.get(pk=id)}
-    return render(request, template_name='core/object_edit.html', context=context)
+    if id == 0:
+        form = ProjectForm()
+        if request.method == 'POST':
+            form = ProjectForm(request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('objects')
+            else:
+                form = ProjectForm()
+        context = {'form': form}
+        return render(request, template_name='core/object_edit.html', context=context)
+    else:
+        obj = Projects.objects.get(pk=id)
+        form = ProjectForm()
+        if request.method == 'POST':
+            a = Projects.objects.get(pk=id)
+            form = ProjectForm(request.POST, instance=a)
+            if form.is_valid():
+                print('OKKKKKKKK')
+                form.save()
+                return redirect('objects')
+            else:
+                form = ProjectForm()
+                print(form.errors)
+        for field in obj._meta.fields:
+            val = getattr(obj, field.name)
+            print(field.name, val)
+            if 'date' in field.name:
+                if val is not None:
+                    print(type(val))
+                    form.initial[f'{field.name}'] = val.isoformat()
+            else:
+                if val is not None:
+                    form.initial[f'{field.name}'] = val
+        roles = {
+            'DI': 'Директор',
+            'ME': 'Менеджер/Инженер',
+            'RA': 'Работник',
+            'BU': 'Бухгалтер',
+            'RN': 'Руководитель направления',
+            'KS': 'Кадровый специалист'
+        }
+        context = {'object': Projects.objects.get(pk=id),
+                   'form' : form,
+                   'roles' : roles}
+        return render(request, template_name='core/object_edit.html', context=context)
 
 def get_task_by_id(request, id):
     task = Tasks.objects.get(id=id)

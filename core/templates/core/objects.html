@@ -14,7 +14,7 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="110%" cellspacing="0">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -28,7 +28,6 @@
                             <th>КИП</th>
                             <th>ПК</th>
                             <th>Календарь</th>
-                            <th>Карточка</th>
                         </tr>
                     </thead>
                     <tfoot>
@@ -44,25 +43,24 @@
                             <th>КИП</th>
                             <th>ПК</th>
                             <th>Календарь</th>
-                            <th>Карточка</th>
                         </tr>
                     </tfoot>
                     <tbody>
                     {% for object in objects %}
                         <tr>
-                            <td><a href="edit/{{ object.id }}">{{ object.id }}</a></td>
+                            <td><a color="#1cc88a" class="btn btn-primary" href="{% url 'card' id=object.id %}" class="label label-table label-success ">{{ object.id }}</a></td>
                             <td>{{ object.name }}</td>
                             <td>{{ object.contract }}</td>
                             {% if object.status == 'IWrk' %}
-                                <td bgcolor="#1cc88a">В работе</td>
+                                <td bgcolor="#1cc88a" style="color:#f8f9fc">В работе</td>
                             {% elif object.status == 'PNR' %}
-                                <td bgcolor="#f6c23e">ПНР</td>
+                                <td bgcolor="#f6c23e" style="color:#f8f9fc">ПНР</td>
                             {% elif object.status == 'SOff' %}
-                                <td bgcolor="#858796">Сезон откл.</td>
+                                <td bgcolor="#858796" style="color:#f8f9fc">Сезон откл.</td>
                             {% elif object.status == 'SMR' %}
-                                <td bgcolor="#4e73df">СМР</td>
+                                <td bgcolor="#4e73df" style="color:#f8f9fc">СМР</td>
                             {% elif object.status == 'AOff' %}
-                                <td bgcolor="#e74a3b">Аварийное откл.</td>
+                                <td bgcolor="#e74a3b" style="color:#f8f9fc">Аварийное откл.</td>
                             {% endif %}
                             {% if object.seasoning == 'Seas' %}
                                 <td>Сезонная</td>
@@ -70,16 +68,22 @@
                                 <td>Круглогодичная</td>
                             {% endif %}
                             <td>{{ object.address }}</td>
-                            <td>{{ object.date_creation }}</td>
-                            <td><a href="{% url 'show_tasks' id=object.id %}" class="label label-table label-success ">{{ object.tasks.count }}</a></td>
+                            <td>{{ object.date_creation.isoformat }}</td>
+                            <td><a href="{% url 'show_tasks' id=object.id %}" class="btn btn-primary">{{ object.tasks.count }}</a></td>
                             <td>{{ object.id }}</td>
                             <td>{{ object.id }}</td>
                             <td><a href="calendar/{{ object.id }}"></a></td>
-                            <td><a href="{% url 'card' id=object.id %}">Карточка</a></td>
                         </tr>
                     {% endfor %}
                     </tbody>
                 </table>
+            <div class="m-t-20">
+                <a href="{% url 'card' id=0 %}">
+                    <button type="submit" class="btn btn-success waves-effect waves-light m-l-10 btn-md"
+                            name="isSaved" value="1">+Добавить объект
+                    </button>
+                </a>
+            </div>
             </div>
         </div>
     </div>
