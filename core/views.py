@@ -32,7 +32,6 @@ def loginPage(request):
         if request.method == 'POST':
             username = request.POST.get('username')
             password = request.POST.get('password')
-            print(username, password)
             User = authenticate(request, username=username, password=password)
 
             if User is not None:
@@ -57,7 +56,6 @@ def register(request):
         form = CreateUserForm()
 
         if request.method == 'POST':
-            print(request.POST)
             form = CreateUserForm(request.POST)
             if form.is_valid():
                 form.save()
@@ -75,9 +73,7 @@ def forgot_password(request):
 def objects(request):
 
     objects = Projects.objects.all()
-    print(objects[0].tasks.all())
-    for element in objects[0].tasks.all():
-        print(element)
+
     context = {'objects' : objects}
     return render(request, 'core/objects.html', context=context)
 
@@ -85,6 +81,23 @@ def objects(request):
 def show_tasks(request, id):
     context = {'tasks' : Tasks.objects.filter(projects__name=Projects.objects.get(pk=id).name)}
     return render(request, template_name='core/tasks.html', context=context)
+
+
+def employee_project(request, id):
+    if request.method == 'POST':
+        if request.POST.get('isSaved') != '-1':
+            f = request.POST.get('isSaved')
+            Worker = Employees.objects.get(pk=int(f))
+            Worker.employee_to_project.remove(Projects.objects.get(pk=id))
+        else:
+            try:
+                f = request.POST.get('worker')
+                Worker = Employees.objects.get(pk=int(f))
+                Worker.employee_to_project.add(Projects.objects.get(pk=id))
+            except:
+                print('Exception')
+                pass
+    return redirect('card', id=id)
 
 
 def object_edit(request, id):
@@ -106,18 +119,14 @@ def object_edit(request, id):
             a = Projects.objects.get(pk=id)
             form = ProjectForm(request.POST, instance=a)
             if form.is_valid():
-                print('OKKKKKKKK')
                 form.save()
                 return redirect('objects')
             else:
                 form = ProjectForm()
-                print(form.errors)
         for field in obj._meta.fields:
             val = getattr(obj, field.name)
-            print(field.name, val)
             if 'date' in field.name:
                 if val is not None:
-                    print(type(val))
                     form.initial[f'{field.name}'] = val.isoformat()
             else:
                 if val is not None:
@@ -132,7 +141,8 @@ def object_edit(request, id):
         }
         context = {'object': Projects.objects.get(pk=id),
                    'form' : form,
-                   'roles' : roles}
+                   'roles' : roles,
+                   'employees' : Employees.objects.all()}
         return render(request, template_name='core/object_edit.html', context=context)
 
 def get_task_by_id(request, id):

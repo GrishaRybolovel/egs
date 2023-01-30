@@ -85,7 +85,7 @@ class Employees(models.Model):
     )
 
     def __str__(self):
-        return self.name + " " + self.surname
+        return self.surname + " " + self.name + " " + self.last_name
 
     class Meta:
         verbose_name = 'Сотрудники'

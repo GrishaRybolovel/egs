@@ -163,7 +163,7 @@
 
             <div class="card shadow h-100 py-2">
                 <div class="card-body">
-                    <form class="form-horizontal" role="form" method="POST">
+                    <form class="form-horizontal" role="form" method="POST" action="{% url 'employee_project' id=object.id %}">
                         {% csrf_token %}
                         <div class="col-sm-12">
                             <div class="card-box">
@@ -175,21 +175,27 @@
                                     <tbody>
                                     {% for emp in object.employee %}
                                         <tr>
-                                            <td>{{ emp.surname }} {{ emp.name }} {{ emp.last_name }}<small>(Роль)</small></td>
-                                            <td width="80"><a class="col-form-label" style="color: #e74a3b"
-                                                              href="http://egservice.beget.tech/objects/follower_delete/1/14/22">Удалить</a>
+                                            <td>{{ emp }}<small>(Роль)</small></td>
+                                            <td width="80">
+                                                <button type="submit" name="isSaved" value="{{ emp.id }}" class="btn btn-danger btn-sm">
+                                                    Удалить
+                                                </button>
                                             </td>
                                         </tr>
                                     {% endfor %}
-
-                                    <tr>
-                                        <td>Б</td>
-                                        <td width="80"><a class="label label-table label-danger confirmDelete"
-                                                          href="http://egservice.beget.tech/objects/follower_delete/1/14/22">Удалить</a>
-                                        </td>
-                                    </tr>
                                     </tbody>
                                 </table>
+                            <select name="worker" class="form-control mb-3" id="id_status">
+                            <option selected hidden>Добавить сотрудника</option>
+                                {% for employee in employees %}
+                                    <option value="{{ employee.id }}">{{ employee }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="m-t-20">
+                                <button type="submit" class="btn btn-success waves-effect waves-light m-l-10 btn-md"
+                                        name="isSaved" value="-1">Добавить
+                                </button>
+                            </div>
 
                             </div>
                         </div>

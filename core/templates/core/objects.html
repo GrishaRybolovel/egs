@@ -48,7 +48,7 @@
                     <tbody>
                     {% for object in objects %}
                         <tr>
-                            <td><a color="#1cc88a" class="btn btn-primary" href="{% url 'card' id=object.id %}" class="label label-table label-success ">{{ object.id }}</a></td>
+                            <td><a color="#1cc88a" class="btn btn-primary btn-sm" href="{% url 'card' id=object.id %}" class="label label-table label-success ">{{ object.id }}</a></td>
                             <td>{{ object.name }}</td>
                             <td>{{ object.contract }}</td>
                             {% if object.status == 'IWrk' %}
@@ -69,7 +69,7 @@
                             {% endif %}
                             <td>{{ object.address }}</td>
                             <td>{{ object.date_creation.isoformat }}</td>
-                            <td><a href="{% url 'show_tasks' id=object.id %}" class="btn btn-primary">{{ object.tasks.count }}</a></td>
+                            <td><a href="{% url 'show_tasks' id=object.id %}" class="btn btn-primary btn-sm">{{ object.tasks.count }}</a></td>
                             <td>{{ object.id }}</td>
                             <td>{{ object.id }}</td>
                             <td><a href="calendar/{{ object.id }}"></a></td>
