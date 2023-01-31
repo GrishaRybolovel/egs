@@ -5,7 +5,7 @@ from .models import *
 # Register your models here.
 
 class EmployeesAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'surname', 'role', 'phone', 'email', 'post', 'status')
+    list_display = ('id', 'name', 'surname', 'role', 'phone', 'user', 'post', 'status')
     list_display_links = ('id',)
     search_fields = ('id', 'name', 'role')
 

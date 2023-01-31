@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 # Create your models here.
 
@@ -11,12 +12,10 @@ class Employees(models.Model):
     surname = models.CharField(max_length=63, verbose_name='Фамилия')
     last_name = models.CharField(max_length=63, blank=True, verbose_name='Отчество')
     phone = models.CharField(max_length=255, blank=True, verbose_name='Телефон')
-    email = models.CharField(max_length=255, blank=True, verbose_name='Почта')
     address = models.CharField(max_length=255, blank=True, verbose_name='Адрес')
     date_of_birth = models.DateField(verbose_name='Дата рождения')
     date_of_start = models.DateField(verbose_name='Дата начала')
-    login = models.CharField(max_length=255, blank=True, verbose_name='Логин')
-    password = models.CharField(max_length=255, blank=True, verbose_name='Пароль')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.deletion.CASCADE, null=True)
     ROLE_IN_SYSTEM_CHOICES = [
         ('DI', 'Директор'),
         ('ME', 'Менеджер/Инженер'),
