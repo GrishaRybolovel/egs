@@ -32,10 +32,44 @@
                 <div class="d-sm-flex align-items-center justify-content-between mb-3">
                     <h1 class="h4 ml-4 mb-1 text-gray-800"> Новое сообщение </h1>
                 </div>
+                <form class="form-horizontal" role="form" method="POST">
+                    {% csrf_token %}
+                    <div class="col-sm-12">
+                        <div class="card-box">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="col-md-4 font-weight-bold control-label">Введите сообщение</label>
+                                        <div class="col-md-8">
+                                            {{ form.message }}
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-md-4 font-weight-bold control-label">Приложить документ</label>
+                                        <div class="col-md-8">
+                                            {{ form.doc }}
+                                        </div>
+                                    </div>
 
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="m-t-20">
+                                <button type="submit" class="btn btn-success waves-effect waves-light m-l-10 btn-md"
+                                        name="isSaved" value="1">Сохранить
+                                </button>
+                            </div>
+                            {{ form.errors }}
+                        </div>
+                    </div>
+                </form>
             </div>
-
         </div>
+
+    </div>
 
     </div>
     <!-- /.container-fluid -->

@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.contrib.auth.models import User
 from django.forms import ModelForm
-from .models import Projects, Employees, Documents
+from .models import Projects, Employees, Documents, Messages
 
 class CreateUserForm(UserCreationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username',
@@ -99,3 +99,23 @@ class DocumentForm(ModelForm):
     class Meta:
         model = Documents
         fields = ['name', 'status', 'doc_type', 'duration', 'doc']
+
+class MessageForm(ModelForm):
+    def __init__(self, **kwargs):
+        self.task = kwargs.pop('task', None)
+        self.author = kwargs.pop('author', None)
+        super(MessageForm, self).__init__(**kwargs)
+
+    def save(self, commit=True):
+        obj = super(MessageForm, self).save(commit=False)
+        obj.task = self.task
+        obj.doc = self.data['doc']
+        obj.author = self.author
+        if commit:
+            obj.save()
+        return obj
+
+    doc = forms.FileField(required=False, widget=forms.FileInput(attrs={'class': 'form-control'}))
+    class Meta:
+        model = Messages
+        fields = ['message', 'doc']

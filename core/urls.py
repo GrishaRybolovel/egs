@@ -8,7 +8,7 @@ from egs import settings
 from .views import *
 
 urlpatterns = [
-     path('task/<int:id>/', get_task_by_id),
+     path('task/<int:id>/', get_task_by_id, name='task'),
      path('', home, name='home'),
      path('login/', loginPage, name='login'),
      path('objects/', objects, name='objects'),
