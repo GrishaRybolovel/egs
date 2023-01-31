@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
-from .forms import CreateUserForm, ProjectForm
+from .forms import CreateUserForm, ProjectForm, DocumentForm
 from django.contrib.auth.models import User
 from django.contrib import messages
 import datetime
@@ -99,6 +99,42 @@ def employee_project(request, id):
                 pass
     return redirect('card', id=id)
 
+def document_edit(request, id_doc, id_proj):
+    if id_doc == 0:
+        form = DocumentForm()
+        if request.method == 'POST':
+            form = DocumentForm(request.POST)
+            if form.is_valid():
+                print('OK')
+                saved_doc = form.save()
+                Projects.objects.get(pk=id_proj).project_to_document.add(Documents.objects.get(pk=saved_doc.pk))
+                return redirect('card', id=id_proj)
+            else:
+                print(form.errors)
+        context = {'form': form}
+        return render(request, template_name='core/document_adding.html', context=context)
+    else:
+        document = Documents.objects.get(pk=id_doc)
+        form = DocumentForm()
+        if request.method == 'POST':
+            a = Documents.objects.get(pk=id_doc)
+            form = DocumentForm(request.POST, instance=a)
+            if form.is_valid():
+                form.save()
+                return redirect('card', id=id_proj)
+            else:
+                print(form.errors)
+        for field in document._meta.fields:
+            val = getattr(document, field.name)
+            if 'date' in field.name:
+                if val is not None:
+                    form.initial[f'{field.name}'] = val.isoformat()
+            else:
+                if val is not None:
+                    form.initial[f'{field.name}'] = val
+        context = {'document': Documents.objects.get(pk=id_doc),
+                   'form': form}
+        return render(request, template_name='core/document_adding.html', context=context)
 
 def object_edit(request, id):
     if id == 0:
@@ -125,7 +161,7 @@ def object_edit(request, id):
                 form = ProjectForm()
         for field in obj._meta.fields:
             val = getattr(obj, field.name)
-            if 'date' in field.name:
+            if 'duration' in field.name:
                 if val is not None:
                     form.initial[f'{field.name}'] = val.isoformat()
             else:
@@ -142,7 +178,8 @@ def object_edit(request, id):
         context = {'object': Projects.objects.get(pk=id),
                    'form' : form,
                    'roles' : roles,
-                   'employees' : Employees.objects.all()}
+                   'employees' : Employees.objects.all(),
+                   'documents' : Projects.objects.get(pk=id).project_to_document.all()}
         return render(request, template_name='core/object_edit.html', context=context)
 
 def get_task_by_id(request, id):

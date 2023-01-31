@@ -230,12 +230,31 @@ class Documents(models.Model):
         ('RA', 'Расторгнутый'),
         ('AN', 'Аннулированный')
     ]
+    TYPE_CHOICES = [
+        ('01', 'Договор'),
+        ('02', 'Регистрация объекта в государственном реестре'),
+        ('03', 'Правоустанавливающие документы'),
+        ('04', 'Проектные документы'),
+        ('05', 'Экспертиза'),
+        ('06', 'Страхование'),
+        ('07', 'Разрешительные документы и акты ввода в эксплуатацию'),
+        ('08', 'Исполнительно-техническая документация по строительству'),
+        ('09', 'Эксплуатационные документы'),
+        ('10', 'Обучение персонала'),
+        ('11', 'Документы сезонные в эксплуатационный период'),
+        ('12', 'Нормативно-правовые акты'),
+        ('13', 'Иные документы')
+    ]
 
     name = models.CharField(max_length=255, verbose_name='Наименование документа')
     status = models.CharField(max_length=4,
                               choices=ROLE_IN_SYSTEM_CHOICES,
                               default='CU',
                               verbose_name='Статус')
+    doc_type = models.CharField(max_length=100,
+                                choices=TYPE_CHOICES,
+                                default='01',
+                                verbose_name='Тип')
     duration = models.DateField(verbose_name='Срок действия')
     doc = models.FileField(upload_to='uploads/', verbose_name='Документ')
 

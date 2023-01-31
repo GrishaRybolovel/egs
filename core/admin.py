@@ -26,7 +26,7 @@ class ProjectsAdmin(admin.ModelAdmin):
     search_fields = ('id',)
 
 class DocumentsAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'status', 'duration', 'doc')
+    list_display = ('id', 'name', 'status', 'doc_type', 'duration', 'doc')
     search_fields = ('id', 'name')
 
 admin.site.register(Employees, EmployeesAdmin)

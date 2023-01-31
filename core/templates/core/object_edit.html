@@ -157,13 +157,14 @@
                 </div>
             </div>
         </div>
-
+        {% if object %}
         <!-- Object editor card-->
         <div class="col-xl-12 col-md-6 mb-4">
 
             <div class="card shadow h-100 py-2">
                 <div class="card-body">
-                    <form class="form-horizontal" role="form" method="POST" action="{% url 'employee_project' id=object.id %}">
+                    <form class="form-horizontal" role="form" method="POST"
+                          action="{% url 'employee_project' id=object.id %}">
                         {% csrf_token %}
                         <div class="col-sm-12">
                             <div class="card-box">
@@ -177,7 +178,8 @@
                                         <tr>
                                             <td>{{ emp }}<small>(Роль)</small></td>
                                             <td width="80">
-                                                <button type="submit" name="isSaved" value="{{ emp.id }}" class="btn btn-danger btn-sm">
+                                                <button type="submit" name="isSaved" value="{{ emp.id }}"
+                                                        class="btn btn-danger btn-sm">
                                                     Удалить
                                                 </button>
                                             </td>
@@ -185,17 +187,17 @@
                                     {% endfor %}
                                     </tbody>
                                 </table>
-                            <select name="worker" class="form-control mb-3" id="id_status">
-                            <option selected hidden>Добавить сотрудника</option>
-                                {% for employee in employees %}
-                                    <option value="{{ employee.id }}">{{ employee }}</option>
-                                {% endfor %}
-                            </select>
-                            <div class="m-t-20">
-                                <button type="submit" class="btn btn-success waves-effect waves-light m-l-10 btn-md"
-                                        name="isSaved" value="-1">Добавить
-                                </button>
-                            </div>
+                                <select name="worker" class="form-control mb-3" id="id_status">
+                                    <option selected hidden>Добавить сотрудника</option>
+                                    {% for employee in employees %}
+                                        <option value="{{ employee.id }}">{{ employee }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="m-t-20">
+                                    <button type="submit" class="btn btn-success waves-effect waves-light m-l-10 btn-md"
+                                            name="isSaved" value="-1">Добавить
+                                    </button>
+                                </div>
 
                             </div>
                         </div>
@@ -203,5 +205,71 @@
                 </div>
             </div>
         </div>
+
+        <!-- Document card-->
+        <div class="col-xl-12 col-md-6 mb-4">
+
+            <div class="card shadow h-100 py-2">
+                <div class="card-body">
+                    <form class="form-horizontal" role="form" method="POST">
+                        {% csrf_token %}
+                        <div class="col-sm-12">
+                            <div class="card-box">
+                                <div class="h4 mb-4 font-weight-bold text-gray-800">Документы</div>
+
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Название документа</th>
+                                        <th>Тип договора</th>
+                                        <th>Статус</th>
+                                        <th>Срок действия</th>
+                                        <th>Ссылка</th>
+                                        <th>Удалить</th>
+                                    </tr>
+                                    </thead>
+                                    <tfoot>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Название документа</th>
+                                        <th>Тип договора</th>
+                                        <th>Статус</th>
+                                        <th>Срок действия</th>
+                                        <th>Ссылка</th>
+                                        <th>Удалить</th>
+                                    </tr>
+                                    </tfoot>
+                                    <tbody>
+                                    {% for document in documents %}
+                                        <tr>
+                                            <td>
+                                                <a class="btn btn-primary btn-sm"
+                                                   href="{% url 'document_edit' id_doc=document.id id_proj=object.id %}">
+                                                {{ document.id }}
+                                                </a>
+                                            </td>
+                                            <td>{{ document.name }}</td>
+                                            <td>{{ document.doc_type }}</td>
+                                            <td>{{ document.status }}</td>
+                                            <td>{{ document.duration.isoformat }}</td>
+                                            <td><button class="btn btn-primary btn-sm">Скачать</button></td>
+                                            <td><button class="btn btn-danger btn-sm">Удалить</button></td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            <div class="m-t-20">
+                                <a href="{% url 'document_edit' id_doc=0 id_proj=object.id%}"
+                                   class="btn btn-success waves-effect waves-light m-l-10 btn-md">+Добавить документ
+                                </a>
+                            </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 {% endblock %}

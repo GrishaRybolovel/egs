@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.contrib.auth.models import User
 from django.forms import ModelForm
-from .models import Projects, Employees, Messages
+from .models import Projects, Employees, Documents
 
 class CreateUserForm(UserCreationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username',
@@ -18,12 +18,6 @@ class CreateUserForm(UserCreationForm):
         model = User
         fields = ['username', 'email', 'password1', 'password2']
 
-
-class MessageForm(ModelForm):
-
-    class Meta:
-        model = Messages
-        fields = ['author', 'message', 'task', 'time', 'doc']
 
 class ProjectForm(ModelForm):
     STATUS_CHOICES = [
@@ -65,3 +59,43 @@ class ProjectForm(ModelForm):
         model = Projects
         fields = ['name', 'contract', 'date_creation', 'date_notification', 'object_type', 'address',
                   'contact', 'phone', 'email', 'status', 'seasoning', 'cost']
+
+
+class DocumentForm(ModelForm):
+    ROLE_IN_SYSTEM_CHOICES = [
+        ('WO', 'Без статуса'),
+        ('CH', 'Черновик'),
+        ('NS', 'На согласовании'),
+        ('CU', 'Действующий'),
+        ('CO', 'Завершённый'),
+        ('RA', 'Расторгнутый'),
+        ('AN', 'Аннулированный')
+    ]
+    TYPE_CHOICES = [
+        ('01', 'Договор'),
+        ('02', 'Регистрация объекта в государственном реестре'),
+        ('03', 'Правоустанавливающие документы'),
+        ('04', 'Проектные документы'),
+        ('05', 'Экспертиза'),
+        ('06', 'Страхование'),
+        ('07', 'Разрешительные документы и акты ввода в эксплуатацию'),
+        ('08', 'Исполнительно-техническая документация по строительству'),
+        ('09', 'Эксплуатационные документы'),
+        ('10', 'Обучение персонала'),
+        ('11', 'Документы сезонные в эксплуатационный период'),
+        ('12', 'Нормативно-правовые акты'),
+        ('13', 'Иные документы')
+    ]
+
+    name = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Наименование документа',
+                                                             'class': 'form-control'}), max_length=255)
+    status = forms.ChoiceField(required=False, choices=ROLE_IN_SYSTEM_CHOICES, widget=forms.Select(attrs={'class':'form-control'}))
+    doc_type = forms.ChoiceField(required=False, choices=TYPE_CHOICES, widget=forms.Select(attrs={'class':'form-control'}))
+    duration = forms.DateField(required=False, widget=forms.DateInput(format='%d/%m/%Y',
+                                                                               attrs={'class' : 'form-control',
+                                                                                      'type' : 'date'}))
+    doc = forms.FileField(required=False, widget=forms.FileInput(attrs={'class' : 'form-control'}))
+
+    class Meta:
+        model = Documents
+        fields = ['name', 'status', 'doc_type', 'duration', 'doc']
