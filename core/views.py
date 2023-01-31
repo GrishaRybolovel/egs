@@ -189,12 +189,14 @@ def get_task_by_id(request, id):
     task = Tasks.objects.get(id=id)
     members = task.employees
     messages = task.messages
-
-    form = MessageForm(data=request.POST, task=Tasks.objects.get(id=id), author=Employees.objects.get(user=request.user))
-    if form.is_valid():
-        print('OK')
-        form.save()
-        return redirect('task', id=id)
+    form = MessageForm()
+    if request.method == "POST":
+        form = MessageForm(request.POST, request.FILES, task=Tasks.objects.get(id=id),
+                           author=Employees.objects.get(user=request.user))
+        if form.is_valid():
+            print('OK')
+            form.save()
+            return redirect('task', id=id)
     context = {
         'form': form,
         'user': request.user,
@@ -207,10 +209,11 @@ def get_task_by_id(request, id):
 
 def download(request, path):
     file_path = os.path.join(settings.MEDIA_ROOT, path)
+
+    print(file_path)
     if os.path.exists(file_path):
         with open(file_path, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/adminupload")
             response['Content-Disposition'] = 'inline; filename=' + os.path.base_name(file_path)
             return response
-
     raise Http404

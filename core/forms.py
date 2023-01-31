@@ -101,15 +101,14 @@ class DocumentForm(ModelForm):
         fields = ['name', 'status', 'doc_type', 'duration', 'doc']
 
 class MessageForm(ModelForm):
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         self.task = kwargs.pop('task', None)
         self.author = kwargs.pop('author', None)
-        super(MessageForm, self).__init__(**kwargs)
+        super(MessageForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
         obj = super(MessageForm, self).save(commit=False)
         obj.task = self.task
-        obj.doc = self.data['doc']
         obj.author = self.author
         if commit:
             obj.save()
