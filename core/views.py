@@ -147,6 +147,21 @@ def employee_project(request, id):
                 pass
     return redirect('card', id=id)
 
+def employee_task(request, id):
+    if request.method == 'POST':
+        if request.POST.get('isSaved') != '-1':
+            f = request.POST.get('isSaved')
+            Worker = Employees.objects.get(pk=int(f))
+            Worker.employee_to_task.remove(Tasks.objects.get(pk=id))
+        else:
+            try:
+                f = request.POST.get('worker')
+                Worker = Employees.objects.get(pk=int(f))
+                Worker.employee_to_task.add(Tasks.objects.get(pk=id))
+            except:
+                print('Exception')
+                pass
+    return redirect('task', id=id)
 
 def document_del(request, id_doc, id_proj):
     try:
@@ -262,6 +277,7 @@ def get_task_by_id(request, id):
     members = task.employees
     messages = task.messages
     form = MessageForm()
+
     if request.method == "POST":
         form = MessageForm(request.POST, request.FILES, task=Tasks.objects.get(id=id),
                            author=Employees.objects.get(user=request.user))
@@ -273,6 +289,7 @@ def get_task_by_id(request, id):
         'form': form,
         'user': request.user,
         'task': task,
+        'employees': Employees.objects.all(),
         'members': members,
         'messages': messages.all().order_by('time')
     }

@@ -86,6 +86,21 @@ class Employees(models.Model):
     def __str__(self):
         return self.surname + " " + self.name + " " + self.last_name
 
+    def get_role(self):
+
+        if self.role == 'DI':
+            return 'Директор'
+        if self.role == 'ME':
+            return 'Менеджер/Инженер'
+        if self.role == 'RA':
+            return 'Работник'
+        if self.role == 'BU':
+            return 'Бухгалтер'
+        if self.role == 'RN':
+            return 'Руководитель направления'
+        if self.role == 'KS':
+            return 'Кадровый специалист'
+
     class Meta:
         verbose_name = 'Сотрудники'
         verbose_name_plural = 'Сотрудники'

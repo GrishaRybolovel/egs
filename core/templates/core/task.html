@@ -5,7 +5,7 @@
     <div class="container">
         <div class="row">
             <!-- Page Heading -->
-            <div class="column ml-4">
+            <div class="column ml-4" style="width: 500px">
                 <div class="d-sm-flex align-items-center justify-content-between mb-3">
                     <h1 class="h4 ml-4 mb-1 text-gray-800"> Сообщения</h1>
                 </div>
@@ -27,45 +27,94 @@
                     </div>
                 {% endfor %}
             </div>
-            <div class="column ml-auto">
+            <div class="column ml-auto mr-3" style="width: 450px">
 
                 <div class="d-sm-flex align-items-center justify-content-between mb-3">
                     <h1 class="h4 ml-4 mb-1 text-gray-800"> Новое сообщение </h1>
                 </div>
-                <form class="form-horizontal" role="form" method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="col-sm-12">
-                        <div class="card-box">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label class="col-md-4 font-weight-bold control-label">Введите сообщение</label>
-                                        <div class="col-md-8">
-                                            {{ form.message }}
+                <div class="card" style="background-color:white">
+                    <form class="form-horizontal" role="form" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="col-sm-12 ml-1 mt-2 mb-2">
+                            <div class="card-box">
+                                <div class="row ml">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label class="col-md-4 font-weight-bold control-label">Введите
+                                                сообщение</label>
+                                            <div class="col-md-8">
+                                                {{ form.message }}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-md-4 font-weight-bold control-label">Приложить документ</label>
-                                        <div class="col-md-8">
-                                            {{ form.doc }}
+                                        <div class="form-group">
+                                            <label class="col-md-4 font-weight-bold control-label">Приложить
+                                                документ</label>
+                                            <div class="col-md-8">
+                                                {{ form.doc }}
+                                            </div>
                                         </div>
-                                    </div>
 
+
+                                    </div>
 
                                 </div>
 
-                            </div>
 
-
-                            <div class="m-t-20">
-                                <button type="submit" class="btn btn-success waves-effect waves-light m-l-10 btn-md"
-                                        name="isSaved" value="1">Сохранить
-                                </button>
+                                <div class="m-t-20">
+                                    <button type="submit" class="btn btn-success waves-effect waves-light m-l-10 btn-md"
+                                            name="isSaved" value="1">Сохранить
+                                    </button>
+                                </div>
+                                {{ form.errors }}
                             </div>
-                            {{ form.errors }}
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
+
+                <div class="d-sm-flex align-items-center justify-content-between mb-3">
+                    <h1 class="h4 ml-4 mb-1 mt-4 text-gray-800"> Ответственные лица </h1>
+                </div>
+                <div class="card" style="background-color:white">
+                    <form class="form-horizontal" role="form" method="POST"
+                          action="{% url 'employee_task' id=task.id %}">
+                        {% csrf_token %}
+                        <div class="col-sm-12 ml-1 mt-2 mb-2">
+                            <div class="card-box">
+
+                                <table id="datatable" class="table table-bordered">
+                                    <thead>
+                                    </thead>
+                                    <tbody>
+                                    {% for emp in task.employees.all %}
+                                        <tr>
+                                            <td>{{ emp }}<small>({{ emp.get_role }})</small></td>
+                                            <td width="10">
+                                                <button type="submit" name="isSaved" value="{{ emp.id }}"
+                                                        class="btn btn-danger btn-sm">
+                                                    Удалить
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <select name="worker" class="form-control mb-3" id="id_status">
+                                    <option selected hidden>Добавить сотрудника</option>
+                                    {% for employee in employees %}
+                                        <option value="{{ employee.id }}">{{ employee }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="m-t-20">
+                                    <button type="submit" class="btn btn-success waves-effect waves-light m-l-10 btn-md"
+                                            name="isSaved" value="-1">Добавить
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
             </div>
         </div>
 
