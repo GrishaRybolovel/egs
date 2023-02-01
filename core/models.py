@@ -30,7 +30,7 @@ class Employees(models.Model):
                             verbose_name='Роль')
     inn = models.CharField(max_length=256, blank=True, verbose_name='ИНН')
     snils = models.CharField(max_length=256, blank=True, verbose_name='СНИЛС')
-    passport = models.CharField(max_length=256, blank=True, verbose_name='Паспорт')
+    passport = models.TextField(max_length=256, blank=True, verbose_name='Паспорт')
     COMPANY_CHOICES = [
         ('GP', 'ГАЗСПЕЦПРОЕКТ'),
         ('NG', 'Не ГАЗСПЕЦПРОЕКТ')
@@ -56,7 +56,7 @@ class Employees(models.Model):
         verbose_name='Начальник'
     )
     post = models.CharField(max_length=255, blank=True, verbose_name='Должность')
-    info_about_relocate = models.CharField(max_length=511, blank=True, verbose_name='Информация о переводе')
+    info_about_relocate = models.TextField(max_length=511, blank=True, verbose_name='Информация о переводе')
     attestation = models.CharField(max_length=255, blank=True, verbose_name='Аттестация')
     qualification = models.CharField(max_length=255, blank=True, verbose_name='Повышение квалификации')
     retraining = models.CharField(max_length=255, blank=True, verbose_name='Проф. подготовка')
@@ -79,6 +79,13 @@ class Employees(models.Model):
     employee_to_document = models.ManyToManyField(
         "Documents",
         related_name="employee_to_doc",
+        blank=True,
+        verbose_name='Документы'
+    )
+
+    employee_to_div = models.ManyToManyField(
+        "Divisions",
+        related_name="employee_to_div",
         blank=True,
         verbose_name='Документы'
     )
@@ -108,7 +115,7 @@ class Employees(models.Model):
 
 
 class Messages(models.Model):
-    message = models.CharField(max_length=1024, verbose_name='Сообщение')
+    message = models.TextField(max_length=1024, verbose_name='Сообщение')
     author = models.ForeignKey(
         "Employees",
         on_delete=models.deletion.PROTECT,
@@ -300,3 +307,27 @@ class Documents(models.Model):
     class Meta:
         verbose_name = 'Документы'
         verbose_name_plural = 'Документы'
+
+
+class Divisions(models.Model):
+    name = models.CharField(max_length=255, verbose_name='Название подразделения')
+    parent_division = models.ForeignKey(
+        "Divisions",
+        on_delete=models.deletion.PROTECT,
+        blank=True,
+        null=True,
+        related_name="parent_div",
+        verbose_name='Родительское подразделение'
+    )
+
+    @property
+    def divs(self) -> QuerySet['Divisions']:
+        return Divisions.objects.filter(parent_div__name=self.name)
+
+    @property
+    def employees(self) -> QuerySet['Employees']:
+        return Employees.objects.filter(employee_to_div__name=self.name)
+
+    class Meta:
+        verbose_name = 'Подразделение'
+        verbose_name_plural = 'Подразделения'

@@ -289,11 +289,11 @@
                 </div>
             </div>
         </div>
-        {% endif %}
         <div class="m-t-20">
-            <a href="{% url 'object_del' id=object.id %}" onclick="return confirm('Are you sure?')"
-               class="btn btn-danger waves-effect waves-light m-l-10 btn-md">Удалить объект
-            </a>
+                <a href="{% url 'object_del' id=object.id %}" onclick="return confirm('Вы точно хотите удалить объект?')"
+                   class="btn btn-danger waves-effect waves-light m-l-10 btn-md">Удалить объект
+                </a>
+            </div>
         </div>
-    </div>
+        {% endif %}
 {% endblock %}
