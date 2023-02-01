@@ -48,8 +48,8 @@ class Employees(models.Model):
         "Divisions",
         on_delete=models.deletion.PROTECT,
         related_name="employee_to_div",
-        blank=True,
-        verbose_name='Документы'
+        blank=False,
+        verbose_name='Подразделение'
     )
     leader = models.ForeignKey(
         "self",
@@ -323,6 +323,9 @@ class Divisions(models.Model):
     @property
     def employees(self) -> QuerySet['Employees']:
         return Employees.objects.filter(employee_to_div__name=self.name)
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name = 'Подразделение'
