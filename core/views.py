@@ -182,7 +182,7 @@ def show_tasks(request, id):
         't6': len(types[6]),
         't7': len(types[7]),
         't8': len(types[8]),
-        'user': User.objects.all()
+        'user': request.user
     }
     return render(request, template_name='core/tasks.html', context=context)
 

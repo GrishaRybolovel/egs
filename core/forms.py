@@ -125,7 +125,7 @@ class MessageForm(ModelForm):
             obj.save()
         return obj
 
-    message = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Текст сообщения',
+    message = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder': 'Текст сообщения',
                                                                   'class': 'form-control'}), max_length=1024)
     doc = forms.FileField(required=False, widget=forms.FileInput(attrs={'class': 'form-control'}))
     class Meta:
