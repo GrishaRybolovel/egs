@@ -44,10 +44,13 @@ class Employees(models.Model):
         ('PTO', 'Производственно-технический отдел (ПТО)'),
         ('WGP', 'Водгазпроект')
     ]
-    division = models.CharField(max_length=3,
-                               choices=DIVISION_CHOICES,
-                               default='GSP',
-                               verbose_name='Отделение')
+    division = models.ForeignKey(
+        "Divisions",
+        on_delete=models.deletion.PROTECT,
+        related_name="employee_to_div",
+        blank=True,
+        verbose_name='Документы'
+    )
     leader = models.ForeignKey(
         "self",
         on_delete=models.deletion.CASCADE,
@@ -79,13 +82,6 @@ class Employees(models.Model):
     employee_to_document = models.ManyToManyField(
         "Documents",
         related_name="employee_to_doc",
-        blank=True,
-        verbose_name='Документы'
-    )
-
-    employee_to_div = models.ManyToManyField(
-        "Divisions",
-        related_name="employee_to_div",
         blank=True,
         verbose_name='Документы'
     )
