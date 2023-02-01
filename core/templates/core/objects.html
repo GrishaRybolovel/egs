@@ -72,7 +72,11 @@
                             <td><a href="{% url 'show_tasks' id=object.id %}" class="btn btn-primary btn-sm">{{ object.tasks.count }}</a></td>
                             <td>{{ object.id }}</td>
                             <td>{{ object.id }}</td>
-                            <td><a href="calendar/{{ object.id }}"></a></td>
+                            <td>
+                                <a href="{% url 'object_del' id=object.id %}" onclick="return confirm('Are you sure?')"
+                                   class="btn btn-danger btn-sm">x
+                                </a>
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>

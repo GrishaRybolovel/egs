@@ -168,8 +168,21 @@ class Projects(models.Model):
         ('Seas', 'Сезонная'),
         ('Fyea', 'Круглогодичная')
     ]
+    TYPE_CHOICES = [
+        ('EXP', 'Эксплуатация'),
+        ('TO', 'Техническое обслуживание'),
+        ('SMR', 'СМР'),
+        ('PRO', 'Производство')
+    ]
+    proj_type = models.CharField(
+        max_length=3,
+        choices=TYPE_CHOICES,
+        default='EXP',
+        verbose_name='Статус объекта'
+    )
 
     name = models.CharField(max_length=255, verbose_name='Название')
+    reg_num = models.CharField(max_length=255, verbose_name='Регистрационный № ОПО')
     contract = models.CharField(max_length=255, blank=True, verbose_name='Договор')
     date_creation = models.DateField(verbose_name='Дата договора')
     date_notification = models.DateField(verbose_name='Дата(для оповещения)')

@@ -1,11 +1,12 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from .forms import CreateUserForm, ProjectForm, DocumentForm, MessageForm
 from django.contrib.auth.models import User
 from django.contrib import messages
 import datetime
+import os
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -71,8 +72,14 @@ def forgot_password(request):
 
 
 @login_required(login_url='login')
-def objects(request):
-    objects = Projects.objects.all()
+def objects(request, id):
+    rel = {
+        '1' : 'EXP',
+        '2' : 'TO',
+        '3' : 'SMR',
+        '4' : 'PRO'
+    }
+    objects = Projects.objects.filter(proj_type=rel[str(id)])
 
     context = {'objects': objects}
     return render(request, 'core/objects.html', context=context)
@@ -100,11 +107,18 @@ def employee_project(request, id):
     return redirect('card', id=id)
 
 
+def document_del(request, id_doc, id_proj):
+    try:
+        Documents.objects.get(pk=id_doc).delete()
+        return redirect('card', id=id_proj)
+    except:
+        return redirect('card', id=id_proj)
+
 def document_edit(request, id_doc, id_proj):
     if id_doc == 0:
         form = DocumentForm()
         if request.method == 'POST':
-            form = DocumentForm(request.POST)
+            form = DocumentForm(request.POST, request.FILES)
             if form.is_valid():
                 print('OK')
                 saved_doc = form.save()
@@ -112,6 +126,7 @@ def document_edit(request, id_doc, id_proj):
                 return redirect('card', id=id_proj)
             else:
                 print(form.errors)
+                print('ERROR')
         context = {'form': form}
         return render(request, template_name='core/document_adding.html', context=context)
     else:
@@ -119,15 +134,17 @@ def document_edit(request, id_doc, id_proj):
         form = DocumentForm()
         if request.method == 'POST':
             a = Documents.objects.get(pk=id_doc)
-            form = DocumentForm(request.POST, instance=a)
+            form = DocumentForm(request.POST, request.FILES, instance=a)
             if form.is_valid():
                 form.save()
+                print('OK')
                 return redirect('card', id=id_proj)
             else:
                 print(form.errors)
+                print('ERROR')
         for field in document._meta.fields:
             val = getattr(document, field.name)
-            if 'date' in field.name:
+            if 'duration' in field.name:
                 if val is not None:
                     form.initial[f'{field.name}'] = val.isoformat()
             else:
@@ -137,6 +154,20 @@ def document_edit(request, id_doc, id_proj):
                    'form': form}
         return render(request, template_name='core/document_adding.html', context=context)
 
+def object_del(request, id):
+    rel = {
+        'EXP' : '1',
+        'TO' : '2',
+        'SMR' : '3',
+        'PRO' : '4'
+    }
+    try:
+        proj = Projects.objects.get(pk=id)
+        ret_id = proj.proj_type
+        Projects.objects.get(pk=id).delete()
+        return redirect('objects', id=rel[ret_id])
+    except:
+        return redirect('card', id=id)
 
 def object_edit(request, id):
     if id == 0:
@@ -144,10 +175,10 @@ def object_edit(request, id):
         if request.method == 'POST':
             form = ProjectForm(request.POST)
             if form.is_valid():
-                form.save()
-                return redirect('objects')
+                new_obj = form.save()
+                return redirect('card', id=new_obj.id)
             else:
-                form = ProjectForm()
+                print(form.errors)
         context = {'form': form}
         return render(request, template_name='core/object_edit.html', context=context)
     else:
@@ -158,12 +189,12 @@ def object_edit(request, id):
             form = ProjectForm(request.POST, instance=a)
             if form.is_valid():
                 form.save()
-                return redirect('objects')
+                return redirect('card', id=id)
             else:
-                form = ProjectForm()
+                print(form.errors)
         for field in obj._meta.fields:
             val = getattr(obj, field.name)
-            if 'duration' in field.name:
+            if 'date' in field.name:
                 if val is not None:
                     form.initial[f'{field.name}'] = val.isoformat()
             else:

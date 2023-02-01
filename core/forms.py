@@ -31,14 +31,24 @@ class ProjectForm(ModelForm):
         ('Seas', 'Сезонная'),
         ('Fyea', 'Круглогодичная')
     ]
+    TYPE_CHOICES = [
+        ('EXP', 'Эксплуатация'),
+        ('TO', 'Техническое обслуживание'),
+        ('SMR', 'СМР'),
+        ('PRO', 'Производство')
+    ]
+    proj_type = forms.ChoiceField(required=False, choices=TYPE_CHOICES,
+                               widget=forms.Select(attrs={'class': 'form-control'}))
     name = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Название',
                                                              'class': 'form-control'}), max_length=255)
+    reg_num = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Регистрационный № ОПО',
+                                                                         'class': 'form-control'}), max_length=255)
     contract = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Договор',
                                                              'class': 'form-control'}), max_length=255)
-    date_creation = forms.DateField(required=False, widget=forms.DateInput(format='%d/%m/%Y',
+    date_creation = forms.DateField(required=True, widget=forms.DateInput(format='%d/%m/%Y',
                                                                            attrs={'class' : 'form-control icon-calendar',
                                                                                   'type' : 'date'}))
-    date_notification = forms.DateField(required=False, widget=forms.DateInput(format='%d/%m/%Y',
+    date_notification = forms.DateField(required=True, widget=forms.DateInput(format='%d/%m/%Y',
                                                                                attrs={'class' : 'form-control',
                                                                                       'type' : 'date'}))
     object_type = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Тип объекта',
@@ -57,7 +67,7 @@ class ProjectForm(ModelForm):
                                                              'class': 'form-control'}))
     class Meta:
         model = Projects
-        fields = ['name', 'contract', 'date_creation', 'date_notification', 'object_type', 'address',
+        fields = ['name', 'proj_type', 'contract', 'date_creation', 'date_notification', 'object_type', 'address',
                   'contact', 'phone', 'email', 'status', 'seasoning', 'cost']
 
 
@@ -99,6 +109,7 @@ class DocumentForm(ModelForm):
     class Meta:
         model = Documents
         fields = ['name', 'status', 'doc_type', 'duration', 'doc']
+
 
 class MessageForm(ModelForm):
     def __init__(self, *args, **kwargs):

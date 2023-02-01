@@ -55,35 +55,27 @@
             <hr class="sidebar-divider">
 
             <!-- Heading -->
-            <div class="sidebar-heading">
-                Компания
-            </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#"
-                    aria-expanded="true">
-                    <i class="fas fa-fw fa-cog"></i>
-                    <span>Структура</span>
+                <a class="nav-link collapsed" href="objects/" data-toggle="collapse" data-target="#collapseCompany"
+                    aria-expanded="true" aria-controls="collapsePages">
+                    <i class="fas fa-fw fa-object-group"></i>
+                    <span>Компания</span>
                 </a>
-            </li>
-
-            <!-- Nav Item - Utilities Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#"
-                    aria-expanded="true" aria-controls="collapseUtilities">
-                    <i class="fas fa-fw fa-person-booth"></i>
-                    <span>Сотрудники</span>
-                </a>
+                <div id="collapseCompany" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="#">Структура</a>
+                        <a class="collapse-item" href="#">Сотрудники</a>
+                        <a class="collapse-item" href="#">Документация</a>
+                    </div>
+                </div>
             </li>
 
             <!-- Divider -->
             <hr class="sidebar-divider">
 
             <!-- Heading -->
-            <div class="sidebar-heading">
-                Объекты
-            </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
@@ -95,10 +87,10 @@
                 <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Типы объектов:</h6>
-                        <a class="collapse-item" href="{% url 'objects' %}">Эксплуатация</a>
-                        <a class="collapse-item" href="{% url 'objects' %}">Теx. обслуживание</a>
-                        <a class="collapse-item" href="{% url 'objects' %}">СМР</a>
-                        <a class="collapse-item" href="{% url 'objects' %}">Производство</a>
+                        <a class="collapse-item" href="{% url 'objects' id=1 %}">Эксплуатация</a>
+                        <a class="collapse-item" href="{% url 'objects' id=2 %}">Теx. обслуживание</a>
+                        <a class="collapse-item" href="{% url 'objects' id=3 %}">СМР</a>
+                        <a class="collapse-item" href="{% url 'objects' id=4 %}">Производство</a>
                     </div>
                 </div>
             </li>
@@ -107,9 +99,6 @@
             <hr class="sidebar-divider d-none d-md-block">
 
             <!-- Heading -->
-            <div class="sidebar-heading">
-                Письма
-            </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">

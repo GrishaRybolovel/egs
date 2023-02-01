@@ -103,7 +103,7 @@
                 <div
                     class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
                     style="background-color: #1cc88a;">
-                    <h6 class="m-0 font-weight-bold" style="color: #f8f9fc;">{{ object.name }}</h6>
+                    <h6 class="m-0 font-weight-bold" style="color: #f8f9fc;">{{ object.name }} | {{ object.created.isoformat }}</h6>
                     <div class="dropdown no-arrow">
                         <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -122,10 +122,12 @@
                 <!-- Card Body -->
                 <div class="card-body">
                     <div class="chart-area", style="height: 10rem">
-                        {{ object.name }}
                         <h6></h6>
                         <h6>Посл. сообщение</h6>
-                        {{ object.created }}
+                        {{ tasks.messages }}
+                        <a href="{% url 'task' id=object.id %}"
+                           class="btn btn-success ml-auto mt-5">Открыть
+                        </a>
                     </div>
                 </div>
             </div>
