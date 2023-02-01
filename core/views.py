@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
-from .forms import CreateUserForm, ProjectForm, DocumentForm, MessageForm
+from .forms import CreateUserForm, ProjectForm, DocumentForm, MessageForm, EmployeeForm
 from django.contrib.auth.models import User
 from django.contrib import messages
 import datetime
@@ -26,6 +26,47 @@ def home(request):
     }
     return render(request, 'core/index.html', context)
 
+def employees(request):
+    emps = Employees.objects.all()
+    context = {
+        'employees' : emps
+    }
+    return render(request, 'core/employees.html', context)
+
+
+def employee_edit(request, id):
+    if id == 0:
+        form = EmployeeForm()
+        if request.method == 'POST':
+            form = EmployeeForm(request.POST)
+            if form.is_valid():
+                new_obj = form.save()
+                return redirect('employee_edit', id=new_obj.id)
+            else:
+                print(form.errors)
+        context = {'form': form}
+        return render(request, template_name='core/object_edit.html', context=context)
+    else:
+        obj = Employees.objects.get(pk=id)
+        form = EmployeeForm()
+        if request.method == 'POST':
+            a = Employees.objects.get(pk=id)
+            form = EmployeeForm(request.POST, instance=a)
+            if form.is_valid():
+                form.save()
+                return redirect('employee_edit', id=id)
+            else:
+                print(form.errors)
+        for field in obj._meta.fields:
+            val = getattr(obj, field.name)
+            if 'date' in field.name:
+                if val is not None:
+                    form.initial[f'{field.name}'] = val.isoformat()
+            else:
+                if val is not None:
+                    form.initial[f'{field.name}'] = val
+        context = {'form': form}
+        return render(request, template_name='core/employee_edit.html', context=context)
 
 def loginPage(request):
     if request.user.is_authenticated:

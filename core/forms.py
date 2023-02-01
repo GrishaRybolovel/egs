@@ -129,3 +129,67 @@ class MessageForm(ModelForm):
     class Meta:
         model = Messages
         fields = ['message', 'doc']
+
+
+class EmployeeForm(ModelForm):
+    ROLE_IN_SYSTEM_CHOICES = [
+        ('DI', 'Директор'),
+        ('ME', 'Менеджер/Инженер'),
+        ('RA', 'Работник'),
+        ('BU', 'Бухгалтер'),
+        ('RN', 'Руководитель направления'),
+        ('KS', 'Кадровый специалист')
+    ]
+    COMPANY_CHOICES = [
+        ('GP', 'ГАЗСПЕЦПРОЕКТ'),
+        ('NG', 'Не ГАЗСПЕЦПРОЕКТ')
+    ]
+    DIVISION_CHOICES = [
+        ('GSP', 'ГАЗСПЕЦПРОЕКТ'),
+        ('PTO', 'Производственно-технический отдел (ПТО)'),
+        ('WGP', 'Водгазпроект')
+    ]
+    name = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Имя',
+                                                             'class': 'form-control'}), max_length=255)
+    surname = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Фамилия',
+                                                                         'class': 'form-control'}), max_length=255)
+    last_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Отчество',
+                                                                         'class': 'form-control'}), max_length=255)
+    phone = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Номер телефона',
+                                                                         'class': 'form-control'}), max_length=255)
+    address = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Адрес',
+                                                                          'class': 'form-control'}), max_length=255)
+    date_of_birth = forms.DateField(required=True, widget=forms.DateInput(format='%d/%m/%Y',
+                                                                           attrs={'class' : 'form-control icon-calendar',
+                                                                                  'type' : 'date'}))
+    date_of_start = forms.DateField(required=True, widget=forms.DateInput(format='%d/%m/%Y',
+                                                                               attrs={'class' : 'form-control',
+                                                                                      'type' : 'date'}))
+    role = forms.ChoiceField(required=False, choices=ROLE_IN_SYSTEM_CHOICES,
+                               widget=forms.Select(attrs={'class': 'form-control'}))
+    inn = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'ИНН',
+                                                             'class': 'form-control'}), max_length=255)
+    snils = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'СНИЛС',
+                                                             'class': 'form-control'}), max_length=255)
+    passport = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Паспорт',
+                                                             'class': 'form-control'}), max_length=255)
+    company = forms.ChoiceField(required=False, choices=COMPANY_CHOICES,
+                             widget=forms.Select(attrs={'class': 'form-control'}))
+    division = forms.ChoiceField(required=False, choices=DIVISION_CHOICES, widget=forms.Select(attrs={'class':'form-control'}))
+    post = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Должность',
+                                                                            'class': 'form-control'}), max_length=255)
+    info_about_relocate = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Информация о перевода',
+                                                                            'class': 'form-control'}), max_length=255)
+    attestation = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Аттестация',
+                                                                            'class': 'form-control'}), max_length=255)
+    qualification = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Повышение квалификации',
+                                                                            'class': 'form-control'}), max_length=255)
+    retraining = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Проф. подготовка',
+                                                                            'class': 'form-control'}), max_length=255)
+    status = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'placeholder': 'Статус',
+                                                                            'class': 'form-control'}))
+    class Meta:
+        model = Employees
+        fields = ['name', 'surname', 'last_name', 'phone', 'address', 'date_of_birth', 'date_of_start',
+                  'role', 'inn', 'snils', 'passport', 'company', 'division', 'leader', 'post', 'info_about_relocate',
+                  'attestation', 'qualification', 'retraining', 'status']
