@@ -19,6 +19,7 @@ urlpatterns = [
      path('objects/edit/<int:id>', object_edit, name='card'),
      path('objects/edit/employee_project/<int:id>', employee_project, name='employee_project'),
      path('task/edit/employee_task/<int:id>', employee_task, name='employee_task'),
+     path('task/edit/close_task/<int:id>', close_task, name='close_task'),
      path('objects/edit/document/<int:id_doc>/<int:id_proj>', document_edit, name='document_edit'),
      path('objects/edit/document/delete/<int:id_doc>/<int:id_proj>', document_del, name='document_del'),
      path('register/', register, name='register'),

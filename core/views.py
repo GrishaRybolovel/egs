@@ -20,9 +20,36 @@ from .models import Tasks, Projects
 @login_required(login_url='login')
 def home(request):
     tasks = Tasks.objects.all()
+
+    types = {
+        0: [],
+        1 : [],
+        2: [],
+        3: [],
+        4: [],
+        5: [],
+        6: [],
+        7: [],
+        8: []
+    }
+
+    for task in tasks:
+        tp = task.get_type
+        types[tp].append(task)
+
+
     context = {
         'tasks': tasks,
-        'user': User.objects.all()
+        't0' : len(types[0]),
+        't1': len(types[1]),
+        't2': len(types[2]),
+        't3': len(types[3]),
+        't4': len(types[4]),
+        't5': len(types[5]),
+        't6': len(types[6]),
+        't7': len(types[7]),
+        't8': len(types[8]),
+        'user': request.user
     }
     return render(request, 'core/index.html', context)
 
@@ -127,7 +154,36 @@ def objects(request, id):
 
 
 def show_tasks(request, id):
-    context = {'tasks': Tasks.objects.filter(projects__name=Projects.objects.get(pk=id).name)}
+    tasks = Tasks.objects.filter(projects__name=Projects.objects.get(pk=id).name)
+    types = {
+        0: [],
+        1: [],
+        2: [],
+        3: [],
+        4: [],
+        5: [],
+        6: [],
+        7: [],
+        8: []
+    }
+
+    for task in tasks:
+        tp = task.get_type
+        types[tp].append(task)
+
+    context = {
+        'tasks': tasks,
+        't0': len(types[0]),
+        't1': len(types[1]),
+        't2': len(types[2]),
+        't3': len(types[3]),
+        't4': len(types[4]),
+        't5': len(types[5]),
+        't6': len(types[6]),
+        't7': len(types[7]),
+        't8': len(types[8]),
+        'user': User.objects.all()
+    }
     return render(request, template_name='core/tasks.html', context=context)
 
 
@@ -161,6 +217,15 @@ def employee_task(request, id):
             except:
                 print('Exception')
                 pass
+    return redirect('task', id=id)
+
+
+def close_task(request, id):
+    if request.method == 'POST':
+        if request.POST.get('Close') == '1':
+            task = Tasks.objects.get(pk=id)
+            task.done = datetime.datetime.now()
+            task.save()
     return redirect('task', id=id)
 
 def document_del(request, id_doc, id_proj):

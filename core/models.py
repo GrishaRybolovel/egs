@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+import datetime
 
 # Create your models here.
 
@@ -164,6 +165,34 @@ class Tasks(models.Model):
     @property
     def employees(self) -> QuerySet[Employees]:
         return Employees.objects.filter(employee_to_task__name=self.name)
+
+    @property
+    def get_type(self):
+        if self.done:
+            return 0
+        if self.projects.proj_type == 'EXP':
+            if self.completion >= datetime.date.today():
+                return 1
+            else:
+                return 2
+
+        if self.projects.proj_type == 'TO':
+            if self.completion >= datetime.date.today():
+                return 3
+            else:
+                return 4
+
+        if self.projects.proj_type == 'SMR':
+            if self.completion >= datetime.date.today():
+                return 5
+            else:
+                return 6
+
+        if self.projects.proj_type == 'PRO':
+            if self.completion >= datetime.date.today():
+                return 7
+            else:
+                return 8
 
     def __str__(self):
         return self.name
