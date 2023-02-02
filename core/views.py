@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
-from .forms import CreateUserForm, ProjectForm, DocumentForm, MessageForm, EmployeeForm, TaskForm
+from .forms import CreateUserForm, ProjectForm, DocumentForm, MessageForm, EmployeeForm, UpdateUserForm, DivisionForm, TaskForm
 from django.contrib.auth.models import User
 from django.contrib import messages
 import datetime
@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 from core.models import *
+import datetime
 
 from .models import Tasks, Projects
 
@@ -37,7 +38,11 @@ def home(request):
         tp = task.get_type
         types[tp].append(task)
 
-
+    docs = []
+    for object in Projects.objects.all():
+        for element in object.project_to_document.all():
+            if (datetime.date.today() - element.duration).days >= 30:
+                docs.append({'doc' : element, 'obj' : object})
     context = {
         'tasks': tasks,
         't0' : len(types[0]),
@@ -49,9 +54,67 @@ def home(request):
         't6': len(types[6]),
         't7': len(types[7]),
         't8': len(types[8]),
-        'user': request.user
+        'user': request.user,
+        'docs' : docs
     }
     return render(request, 'core/index.html', context)
+
+def show_docs(request):
+    docs = CompanyDocuments.objects.get(pk=1).company_to_document.all()
+
+    context = {
+        'docs' : docs
+    }
+
+    return render(request, 'core/documents.html', context)
+
+def docs_edit(request, id_doc):
+    id_proj = 1
+    if id_doc == 0:
+        form = DocumentForm()
+        if request.method == 'POST':
+            form = DocumentForm(request.POST, request.FILES)
+            if form.is_valid():
+                print('OK')
+                saved_doc = form.save()
+                CompanyDocuments.objects.get(pk=id_proj).company_to_document.add(Documents.objects.get(pk=saved_doc.pk))
+                return redirect('show_docs')
+            else:
+                print(form.errors)
+                print('ERROR')
+        context = {'form': form}
+        return render(request, template_name='core/document_adding.html', context=context)
+    else:
+        document = Documents.objects.get(pk=id_doc)
+        form = DocumentForm()
+        if request.method == 'POST':
+            a = Documents.objects.get(pk=id_doc)
+            form = DocumentForm(request.POST, request.FILES, instance=a)
+            if form.is_valid():
+                form.save()
+                print('OK')
+                return redirect('show_docs')
+            else:
+                print(form.errors)
+                print('ERROR')
+        for field in document._meta.fields:
+            val = getattr(document, field.name)
+            if 'duration' in field.name:
+                if val is not None:
+                    form.initial[f'{field.name}'] = val.isoformat()
+            else:
+                if val is not None:
+                    form.initial[f'{field.name}'] = val
+        context = {'document': Documents.objects.get(pk=id_doc),
+                   'form': form}
+        return render(request, template_name='core/document_adding.html', context=context)
+
+def docs_del(request, id_doc):
+    try:
+        Documents.objects.get(pk=id_doc).delete()
+        return redirect('show_docs')
+    except:
+        return redirect('show_docs')
 
 def employees(request):
     emps = Employees.objects.all()
@@ -60,6 +123,27 @@ def employees(request):
     }
     return render(request, 'core/employees.html', context)
 
+def division_del(request, id):
+    try:
+        Divisions.objects.get(pk=id).delete()
+        return redirect('divisions')
+    except:
+        return redirect('divisions')
+
+def divisions(request):
+    divs = Divisions.objects.all()
+    form = DivisionForm()
+
+    if request.method == 'POST':
+        form = DivisionForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('divisions')
+    context = {
+        'form' : form,
+        'divs': divs
+    }
+    return render(request, 'core/company_structure.html', context)
 
 def employee_edit(request, id):
     if id == 0:
@@ -75,7 +159,9 @@ def employee_edit(request, id):
         return render(request, template_name='core/object_edit.html', context=context)
     else:
         obj = Employees.objects.get(pk=id)
+        user_object = obj.user
         form = EmployeeForm()
+        form_user = UpdateUserForm()
         if request.method == 'POST':
             a = Employees.objects.get(pk=id)
             form = EmployeeForm(request.POST, instance=a)
@@ -92,7 +178,12 @@ def employee_edit(request, id):
             else:
                 if val is not None:
                     form.initial[f'{field.name}'] = val
-        context = {'form': form}
+        for field in user_object._meta.fields:
+            val = getattr(user_object, field.name)
+            if val is not None:
+                form_user.initial[f'{field.name}'] = val
+        context = {'form': form,
+                   'form_user' : form_user}
         return render(request, template_name='core/employee_edit.html', context=context)
 
 def loginPage(request):

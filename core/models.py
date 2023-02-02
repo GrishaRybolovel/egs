@@ -346,12 +346,20 @@ class Divisions(models.Model):
     )
 
     @property
-    def divs(self) -> QuerySet['Divisions']:
+    def divis(self) -> QuerySet['Divisions']:
         return Divisions.objects.filter(parent_div__name=self.name)
 
     @property
+    def del_check(self) -> QuerySet['Divisions']:
+        return Divisions.objects.filter(parent_division=self)
+
+    @property
     def employees(self) -> QuerySet['Employees']:
-        return Employees.objects.filter(employee_to_div__name=self.name)
+        return Employees.objects.filter(division__name=self.name)
+
+    @property
+    def employees_amount(self) -> QuerySet['Employees']:
+        return Employees.objects.filter(division__name=self.name).count()
 
     def __str__(self):
         return self.name
@@ -359,3 +367,15 @@ class Divisions(models.Model):
     class Meta:
         verbose_name = 'Подразделение'
         verbose_name_plural = 'Подразделения'
+
+class CompanyDocuments(models.Model):
+    company_to_document = models.ManyToManyField(
+        "Documents",
+        related_name="company_to_doc",
+        blank=True,
+        verbose_name='Документы'
+    )
+
+    class Meta:
+        verbose_name = 'Документация компании'
+        verbose_name_plural = 'Документация компании'

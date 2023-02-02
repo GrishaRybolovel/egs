@@ -180,7 +180,7 @@
                                     <tbody>
                                     {% for emp in object.employee %}
                                         <tr>
-                                            <td>{{ emp }}<small>(Роль)</small></td>
+                                            <td>{{ emp }}<small>({{ emp.get_role }})</small></td>
                                             <td width="80">
                                                 <button type="submit" name="isSaved" value="{{ emp.id }}"
                                                         class="btn btn-danger btn-sm">
@@ -194,7 +194,7 @@
                                 <select name="worker" class="form-control mb-3" id="id_status">
                                     <option selected hidden>Добавить сотрудника</option>
                                     {% for employee in employees %}
-                                        <option value="{{ employee.id }}">{{ employee }}</option>
+                                        <option value="{{ employee.id }}">{{ employee }}({{ employee.get_role }})</option>
                                     {% endfor %}
                                 </select>
                                 <div class="m-t-20">

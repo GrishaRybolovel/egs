@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.contrib.auth.models import User
 from django.forms import ModelForm
-from .models import Projects, Employees, Documents, Messages, Tasks
+from .models import Projects, Employees, Documents, Messages, Divisions, Tasks
 
 class CreateUserForm(UserCreationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username',
@@ -130,7 +130,7 @@ class DocumentForm(ModelForm):
                                                              'class': 'form-control'}), max_length=255)
     status = forms.ChoiceField(required=False, choices=ROLE_IN_SYSTEM_CHOICES, widget=forms.Select(attrs={'class':'form-control'}))
     doc_type = forms.ChoiceField(required=False, choices=TYPE_CHOICES, widget=forms.Select(attrs={'class':'form-control'}))
-    duration = forms.DateField(required=False, widget=forms.DateInput(format='%d/%m/%Y',
+    duration = forms.DateField(required=True, widget=forms.DateInput(format='%d/%m/%Y',
                                                                                attrs={'class' : 'form-control',
                                                                                       'type' : 'date'}))
     doc = forms.FileField(required=False, widget=forms.FileInput(attrs={'class' : 'form-control'}))
@@ -206,7 +206,7 @@ class EmployeeForm(ModelForm):
                                                              'class': 'form-control'}), max_length=255)
     company = forms.ChoiceField(required=False, choices=COMPANY_CHOICES,
                              widget=forms.Select(attrs={'class': 'form-control'}))
-    division = forms.ChoiceField(required=False, choices=DIVISION_CHOICES, widget=forms.Select(attrs={'class':'form-control'}))
+    division = forms.ModelChoiceField(required=False, queryset=Divisions.objects.all(), widget=forms.Select(attrs={'class':'form-control'}))
     post = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Должность',
                                                                             'class': 'form-control'}), max_length=255)
     info_about_relocate = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Информация о перевода',
@@ -224,3 +224,23 @@ class EmployeeForm(ModelForm):
         fields = ['name', 'surname', 'last_name', 'phone', 'address', 'date_of_birth', 'date_of_start',
                   'role', 'inn', 'snils', 'passport', 'company', 'division', 'leader', 'post', 'info_about_relocate',
                   'attestation', 'qualification', 'retraining', 'status']
+class UpdateUserForm(forms.ModelForm):
+    username = forms.CharField(required=False,
+                                    widget=forms.TextInput(attrs={'placeholder': 'Повышение квалификации',
+                                                                  'class': 'form-control'}), max_length=255)
+    email = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Проф. подготовка',
+                                                                               'class': 'form-control'}),
+                                 max_length=255)
+
+    class Meta:
+        model = User
+        fields = ['username', 'password', 'email']
+
+class DivisionForm(forms.ModelForm):
+    name = forms.CharField(required=False,
+                                    widget=forms.TextInput(attrs={'placeholder': 'Повышение квалификации',
+                                                                  'class': 'form-control'}), max_length=255)
+    parent_division = forms.ModelChoiceField(required=False, queryset=Divisions.objects.all(), widget=forms.Select(attrs={'class':'form-control'}))
+    class Meta:
+        model = Divisions
+        fields = ['name', 'parent_division']

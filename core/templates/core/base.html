@@ -36,7 +36,7 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
 
                 <div class="sidebar-brand-text mx-3">ЭГС </div>
             </a>
@@ -65,9 +65,9 @@
                 </a>
                 <div id="collapseCompany" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="#">Структура</a>
+                        <a class="collapse-item" href="{% url 'divisions' %}">Структура</a>
                         <a class="collapse-item" href="{% url 'employees' %}">Сотрудники</a>
-                        <a class="collapse-item" href="#">Документация</a>
+                        <a class="collapse-item" href="{% url 'show_docs' %}">Документация</a>
                     </div>
                 </div>
             </li>

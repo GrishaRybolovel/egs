@@ -34,9 +34,13 @@ class DivisionsAdmin(admin.ModelAdmin):
     list_display_links = ('id',)
     search_fields = ('name',)
 
+class CompanyDocumentsAdmin(admin.ModelAdmin):
+    list_display = ('id',)
+
 admin.site.register(Employees, EmployeesAdmin)
 admin.site.register(Messages, MessagesAdmin)
 admin.site.register(Tasks, TasksAdmin)
 admin.site.register(Projects, ProjectsAdmin)
 admin.site.register(Documents, DocumentsAdmin)
 admin.site.register(Divisions, DivisionsAdmin)
+admin.site.register(CompanyDocuments, CompanyDocumentsAdmin)
