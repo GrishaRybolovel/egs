@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.contrib.auth.models import User
 from django.forms import ModelForm
-from .models import Projects, Employees, Documents, Messages
+from .models import Projects, Employees, Documents, Messages, Tasks
 
 class CreateUserForm(UserCreationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username',
@@ -18,6 +18,35 @@ class CreateUserForm(UserCreationForm):
         model = User
         fields = ['username', 'email', 'password1', 'password2']
 
+class TaskForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.author = kwargs.pop('author', None)
+        self.project = kwargs.pop('project', None)
+        super(TaskForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        obj = super(TaskForm, self).save(commit=False)
+
+        obj.projects = self.project
+        obj.author = self.author
+        if commit:
+            obj.save()
+        return obj
+
+    name = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder': 'Название',
+                                                                         'class': 'form-control'}), max_length=255)
+    created = forms.DateField(required=True, widget=forms.DateInput(format='%d/%m/%Y',
+                                                                           attrs={'class' : 'form-control icon-calendar',
+                                                                                  'type' : 'date'}))
+    completion = forms.DateField(required=True, widget=forms.DateInput(format='%d/%m/%Y',
+                                                                           attrs={'class' : 'form-control icon-calendar',
+                                                                                  'type' : 'date'}))
+    done = forms.DateTimeField(required=False, widget=forms.DateInput(format='%d/%m/%Y',
+                                                          attrs={'class': 'form-control icon-calendar',
+                                                                 'type': 'date'}))
+    class Meta:
+        model = Tasks
+        fields = ['name', 'created', 'completion', 'done']
 
 class ProjectForm(ModelForm):
     STATUS_CHOICES = [

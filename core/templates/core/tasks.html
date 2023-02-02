@@ -1,12 +1,12 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<div class="container-fluid">
+    <div class="container-fluid">
 
-<!-- Page Heading -->
+        <!-- Page Heading -->
 
 
-<div class="column">
+        <div class="column">
             {% if t1 > 0 or t2 > 0 %}
                 {% if t1 > 0 %}
                     <h5> Задачи в процессе:</h5>
@@ -316,7 +316,11 @@
                     {% endfor %}
                 </div>
             {% endif %}
+
+            <a href="{% url 'card_task' proj_id=proj_id id=0 %}"
+               class="btn btn-success mr-auto mb-auto">+Добавить задачу
+            </a>
         </div>
 
-</div>
+    </div>
 {% endblock %}

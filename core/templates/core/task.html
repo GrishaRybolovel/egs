@@ -137,6 +137,7 @@
                                                 name="Close" value="1">Закрыть задачу
                                         </button>
                         </form>
+                        <a href="{% url 'card_task' proj_id=proj_id id=task.id %}" class="btn btn-success btn-rounded waves-effect waves-light m-l-10 btn-md" style="margin-top:10px;margin-left: 100px; margin-right: 100px; margin-bottom: 10px">Редактировать задачу</a>
                     {% endif %}
                 </div>
                 </div>

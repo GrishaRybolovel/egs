@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
-from .forms import CreateUserForm, ProjectForm, DocumentForm, MessageForm, EmployeeForm
+from .forms import CreateUserForm, ProjectForm, DocumentForm, MessageForm, EmployeeForm, TaskForm
 from django.contrib.auth.models import User
 from django.contrib import messages
 import datetime
@@ -182,7 +182,8 @@ def show_tasks(request, id):
         't6': len(types[6]),
         't7': len(types[7]),
         't8': len(types[8]),
-        'user': request.user
+        'user': request.user,
+        'proj_id' : id,
     }
     return render(request, template_name='core/tasks.html', context=context)
 
@@ -336,11 +337,46 @@ def object_edit(request, id):
                    'documents': Projects.objects.get(pk=id).project_to_document.all()}
         return render(request, template_name='core/object_edit.html', context=context)
 
+def task_edit(request, proj_id, id):
+    if id == 0:
+        form = TaskForm()
+        if request.method == 'POST':
+            form = TaskForm(request.POST, project=Projects.objects.get(pk=proj_id), author=Employees.objects.get(user=request.user))
+            if form.is_valid():
+                new_task = form.save()
+                return redirect('card_task', proj_id=proj_id, id=new_task.id)
+            else:
+                print(form.errors)
+        context = {'form': form}
+        return render(request, template_name='core/task_edit.html', context=context)
+    else:
+        task = Tasks.objects.get(pk=id)
+        form = TaskForm()
+        if request.method == 'POST':
+            form = TaskForm(request.POST, project=Projects.objects.get(pk=proj_id), author=task.author, instance=task)
+            if form.is_valid():
+                form.save()
+                return redirect('card_task', proj_id=proj_id, id=id)
+            else:
+                print(form.errors)
+        for field in task._meta.fields:
+            val = getattr(task, field.name)
+            if 'created' in field.name or 'done' in field.name or 'completion' in field.name:
+                if val is not None:
+                    form.initial[f'{field.name}'] = val.isoformat()
+            elif 'name' in field.name:
+                if val is not None:
+                    form.initial[f'{field.name}'] = val
+        context = {'task': Tasks.objects.get(pk=id),
+                   'form': form,
+                   }
+        return render(request, template_name='core/task_edit.html', context=context)
 
 def get_task_by_id(request, id):
     task = Tasks.objects.get(id=id)
     members = task.employees
     messages = task.messages
+    proj_id = task.projects.id
     form = MessageForm()
 
     if request.method == "POST":
@@ -356,7 +392,9 @@ def get_task_by_id(request, id):
         'task': task,
         'employees': Employees.objects.all(),
         'members': members,
-        'messages': messages.all().order_by('time')
+        'messages': messages.all().order_by('time'),
+        'proj_id': proj_id
+
     }
     return render(request, template_name='core/task.html', context=context)
 

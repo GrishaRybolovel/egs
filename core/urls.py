@@ -17,6 +17,7 @@ urlpatterns = [
      path('objects/delete/<int:id>', object_del, name='object_del'),
      path('objects/tasks/<int:id>', show_tasks, name='show_tasks'),
      path('objects/edit/<int:id>', object_edit, name='card'),
+     path('task/edit/<int:proj_id>/<int:id>', task_edit, name='card_task'),
      path('objects/edit/employee_project/<int:id>', employee_project, name='employee_project'),
      path('task/edit/employee_task/<int:id>', employee_task, name='employee_task'),
      path('task/edit/close_task/<int:id>', close_task, name='close_task'),
