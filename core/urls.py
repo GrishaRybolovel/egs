@@ -18,6 +18,7 @@ urlpatterns = [
      path('divisions/del/<int:id>', division_del, name='divisions_del'),
      path('employees/', employees, name='employees'),
      path('employees/edit/<int:id>', employee_edit, name='employee_edit'),
+     path('employees/add/', employee_add, name='employee_add'),
      path('objects/<int:id>', objects, name='objects'),
      path('objects/delete/<int:id>', object_del, name='object_del'),
      path('objects/tasks/<int:id>', show_tasks, name='show_tasks'),

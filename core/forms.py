@@ -190,10 +190,10 @@ class EmployeeForm(ModelForm):
                                                                          'class': 'form-control'}), max_length=255)
     address = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Адрес',
                                                                           'class': 'form-control'}), max_length=255)
-    date_of_birth = forms.DateField(required=True, widget=forms.DateInput(format='%d/%m/%Y',
+    date_of_birth = forms.DateField(required=False, widget=forms.DateInput(format='%d/%m/%Y',
                                                                            attrs={'class' : 'form-control icon-calendar',
                                                                                   'type' : 'date'}))
-    date_of_start = forms.DateField(required=True, widget=forms.DateInput(format='%d/%m/%Y',
+    date_of_start = forms.DateField(required=False, widget=forms.DateInput(format='%d/%m/%Y',
                                                                                attrs={'class' : 'form-control',
                                                                                       'type' : 'date'}))
     role = forms.ChoiceField(required=False, choices=ROLE_IN_SYSTEM_CHOICES,
@@ -209,7 +209,7 @@ class EmployeeForm(ModelForm):
     division = forms.ModelChoiceField(required=False, queryset=Divisions.objects.all(), widget=forms.Select(attrs={'class':'form-control'}))
     post = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Должность',
                                                                             'class': 'form-control'}), max_length=255)
-    info_about_relocate = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Информация о перевода',
+    info_about_relocate = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Информация о переводе',
                                                                             'class': 'form-control'}), max_length=255)
     attestation = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Аттестация',
                                                                             'class': 'form-control'}), max_length=255)

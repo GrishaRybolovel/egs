@@ -9,13 +9,13 @@ from django.db.models import QuerySet
 
 
 class Employees(models.Model):
-    name = models.CharField(max_length=63, verbose_name='Имя')
-    surname = models.CharField(max_length=63, verbose_name='Фамилия')
+    name = models.CharField(max_length=63, blank=True, verbose_name='Имя')
+    surname = models.CharField(max_length=63, blank=True, verbose_name='Фамилия')
     last_name = models.CharField(max_length=63, blank=True, verbose_name='Отчество')
     phone = models.CharField(max_length=255, blank=True, verbose_name='Телефон')
     address = models.CharField(max_length=255, blank=True, verbose_name='Адрес')
-    date_of_birth = models.DateField(verbose_name='Дата рождения')
-    date_of_start = models.DateField(verbose_name='Дата начала')
+    date_of_birth = models.DateField(verbose_name='Дата рождения', blank=True, null=True)
+    date_of_start = models.DateField(verbose_name='Дата начала', blank=True, null=True)
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.deletion.CASCADE, null=True)
     ROLE_IN_SYSTEM_CHOICES = [
         ('DI', 'Директор'),
@@ -28,7 +28,8 @@ class Employees(models.Model):
     role = models.CharField(max_length=3,
                             choices=ROLE_IN_SYSTEM_CHOICES,
                             default='RA',
-                            verbose_name='Роль')
+                            verbose_name='Роль',
+                            blank=True)
     inn = models.CharField(max_length=256, blank=True, verbose_name='ИНН')
     snils = models.CharField(max_length=256, blank=True, verbose_name='СНИЛС')
     passport = models.TextField(max_length=256, blank=True, verbose_name='Паспорт')
@@ -39,7 +40,8 @@ class Employees(models.Model):
     company = models.CharField(max_length=3,
                             choices=COMPANY_CHOICES,
                             default='GP',
-                            verbose_name='Компания')
+                            verbose_name='Компания',
+                            blank=True)
     DIVISION_CHOICES = [
         ('GSP', 'ГАЗСПЕЦПРОЕКТ'),
         ('PTO', 'Производственно-технический отдел (ПТО)'),
@@ -49,7 +51,8 @@ class Employees(models.Model):
         "Divisions",
         on_delete=models.deletion.PROTECT,
         related_name="employee_to_div",
-        blank=False,
+        null=True,
+        blank=True,
         verbose_name='Подразделение'
     )
     leader = models.ForeignKey(

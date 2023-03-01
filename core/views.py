@@ -9,14 +9,13 @@ import datetime
 import os
 
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 # Create your views here.
 from core.models import *
 import datetime
 
 from .models import Tasks, Projects
-
 
 @login_required(login_url='login')
 def home(request):
@@ -59,6 +58,8 @@ def home(request):
     }
     return render(request, 'core/index.html', context)
 
+
+@login_required(login_url='login')
 def show_docs(request):
     docs = CompanyDocuments.objects.get(pk=1).company_to_document.all()
 
@@ -68,6 +69,9 @@ def show_docs(request):
 
     return render(request, 'core/documents.html', context)
 
+
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_superuser)
 def docs_edit(request, id_doc):
     id_proj = 1
     if id_doc == 0:
@@ -109,6 +113,9 @@ def docs_edit(request, id_doc):
                    'form': form}
         return render(request, template_name='core/document_adding.html', context=context)
 
+
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_superuser)
 def docs_del(request, id_doc):
     try:
         Documents.objects.get(pk=id_doc).delete()
@@ -116,6 +123,9 @@ def docs_del(request, id_doc):
     except:
         return redirect('show_docs')
 
+
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_superuser)
 def employees(request):
     emps = Employees.objects.all()
     context = {
@@ -123,6 +133,9 @@ def employees(request):
     }
     return render(request, 'core/employees.html', context)
 
+
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_superuser)
 def division_del(request, id):
     try:
         Divisions.objects.get(pk=id).delete()
@@ -130,6 +143,9 @@ def division_del(request, id):
     except:
         return redirect('divisions')
 
+
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_superuser)
 def divisions(request):
     divs = Divisions.objects.all()
     form = DivisionForm()
@@ -145,6 +161,9 @@ def divisions(request):
     }
     return render(request, 'core/company_structure.html', context)
 
+
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_superuser)
 def employee_edit(request, id):
     if id == 0:
         form = EmployeeForm()
@@ -162,11 +181,25 @@ def employee_edit(request, id):
         user_object = obj.user
         form = EmployeeForm()
         form_user = UpdateUserForm()
-        if request.method == 'POST':
+        if request.method == 'POST' and request.POST['isSaved'] == '1':
             a = Employees.objects.get(pk=id)
             form = EmployeeForm(request.POST, instance=a)
+            form_user = UpdateUserForm()
             if form.is_valid():
                 form.save()
+                return redirect('employee_edit', id=id)
+            else:
+                print(form.errors)
+        elif request.method == 'POST' and request.POST['isSaved'] == '2':
+            b = Employees.objects.get(pk=id)
+            a = b.user
+            form = UpdateUserForm(request.POST, instance=a)
+            if form.is_valid():
+                form.save()
+
+                if request.POST['password_change']:
+                    a.set_password(request.POST['password_change'])
+                    a.save()
                 return redirect('employee_edit', id=id)
             else:
                 print(form.errors)
@@ -185,6 +218,22 @@ def employee_edit(request, id):
         context = {'form': form,
                    'form_user' : form_user}
         return render(request, template_name='core/employee_edit.html', context=context)
+
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_superuser)
+def employee_add(request):
+    form = CreateUserForm()
+    if request.method == 'POST':
+        form = CreateUserForm(request.POST)
+        if form.is_valid():
+            b = form.save()
+            a = Employees(user=b, date_of_birth=datetime.date.today(), date_of_start=datetime.date.today(), division_id=1, status=True)
+            a.save()
+            return redirect('employee_edit', id=a.id)
+        else:
+            print(form.errors)
+    context = {'form': form}
+    return render(request, template_name='core/employee_add.html', context=context)
 
 def loginPage(request):
     if request.user.is_authenticated:
@@ -210,6 +259,7 @@ def logoutUser(request):
     return redirect('login')
 
 
+#Useless method
 def register(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -225,7 +275,7 @@ def register(request):
             form = CreateUserForm()
         return render(request, 'core/register.html', {'form': form})
 
-
+#Useless method
 def forgot_password(request):
     return render(request, 'core/forgot-password.html')
 
@@ -244,6 +294,7 @@ def objects(request, id):
     return render(request, 'core/objects.html', context=context)
 
 
+@login_required(login_url='login')
 def show_tasks(request, id):
     tasks = Tasks.objects.filter(projects__name=Projects.objects.get(pk=id).name)
     types = {
@@ -279,6 +330,8 @@ def show_tasks(request, id):
     return render(request, template_name='core/tasks.html', context=context)
 
 
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_superuser)
 def employee_project(request, id):
     if request.method == 'POST':
         if request.POST.get('isSaved') != '-1':
@@ -295,6 +348,9 @@ def employee_project(request, id):
                 pass
     return redirect('card', id=id)
 
+
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_superuser)
 def employee_task(request, id):
     if request.method == 'POST':
         if request.POST.get('isSaved') != '-1':
@@ -312,6 +368,8 @@ def employee_task(request, id):
     return redirect('task', id=id)
 
 
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_superuser)
 def close_task(request, id):
     if request.method == 'POST':
         if request.POST.get('Close') == '1':
@@ -320,6 +378,9 @@ def close_task(request, id):
             task.save()
     return redirect('task', id=id)
 
+
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_superuser)
 def document_del(request, id_doc, id_proj):
     try:
         Documents.objects.get(pk=id_doc).delete()
@@ -327,6 +388,9 @@ def document_del(request, id_doc, id_proj):
     except:
         return redirect('card', id=id_proj)
 
+
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_superuser)
 def document_edit(request, id_doc, id_proj):
     if id_doc == 0:
         form = DocumentForm()
@@ -367,6 +431,9 @@ def document_edit(request, id_doc, id_proj):
                    'form': form}
         return render(request, template_name='core/document_adding.html', context=context)
 
+
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_superuser)
 def object_del(request, id):
     rel = {
         'EXP' : '1',
@@ -382,6 +449,8 @@ def object_del(request, id):
     except:
         return redirect('card', id=id)
 
+
+@login_required(login_url='login')
 def object_edit(request, id):
     if id == 0:
         form = ProjectForm()
@@ -428,6 +497,8 @@ def object_edit(request, id):
                    'documents': Projects.objects.get(pk=id).project_to_document.all()}
         return render(request, template_name='core/object_edit.html', context=context)
 
+
+@login_required(login_url='login')
 def task_edit(request, proj_id, id):
     if id == 0:
         form = TaskForm()
@@ -463,6 +534,8 @@ def task_edit(request, proj_id, id):
                    }
         return render(request, template_name='core/task_edit.html', context=context)
 
+
+@login_required(login_url='login')
 def get_task_by_id(request, id):
     task = Tasks.objects.get(id=id)
     members = task.employees
@@ -490,6 +563,7 @@ def get_task_by_id(request, id):
     return render(request, template_name='core/task.html', context=context)
 
 
+@login_required(login_url='login')
 def download(request, path):
     file_path = os.path.join(settings.MEDIA_ROOT, path)
 

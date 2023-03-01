@@ -61,19 +61,12 @@
                                                     Me</label>
                                             </div>
                                         </div>
-                                        <input value="Login" type="submit" class="btn btn-primary btn-user btn-block">
+                                        <input value="Войти" type="submit" class="btn btn-primary btn-user btn-block">
                                     </form>
 
                                     {% for message in messages %}
                                         <p id="messages">{{ message }}</p>
                                     {% endfor %}
-                                    <hr>
-                                    <div class="text-center">
-                                        <a class="small" href="{% url 'forgot_password' %}">Forgot Password?</a>
-                                    </div>
-                                    <div class="text-center">
-                                        <a class="small" href="{% url 'register' %}">Create an Account!</a>
-                                    </div>
                                 </div>
                             </div>
                         </div>
