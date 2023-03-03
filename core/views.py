@@ -19,7 +19,12 @@ from .models import Tasks, Projects
 
 @login_required(login_url='login')
 def home(request):
-    tasks = Tasks.objects.all()
+    tasks = []
+    if request.user.is_superuser:
+        tasks = Tasks.objects.all()
+    else:
+        emp = Employees.objects.get(user=request.user)
+        tasks = emp.employee_to_task.all()
 
     types = {
         0: [],
@@ -54,7 +59,7 @@ def home(request):
         't7': len(types[7]),
         't8': len(types[8]),
         'user': request.user,
-        'docs' : docs
+        'docs': docs
     }
     return render(request, 'core/index.html', context)
 
@@ -288,7 +293,12 @@ def objects(request, id):
         '3' : 'SMR',
         '4' : 'PRO'
     }
-    objects = Projects.objects.filter(proj_type=rel[str(id)])
+    emp = Employees.objects.get(user=request.user)
+    objects = []
+    if not request.user.is_superuser:
+        objects = emp.employee_to_project.filter(proj_type=rel[str(id)])
+    else:
+        objects = Projects.objects.filter(proj_type=rel[str(id)])
 
     context = {'objects': objects}
     return render(request, 'core/objects.html', context=context)
@@ -296,7 +306,13 @@ def objects(request, id):
 
 @login_required(login_url='login')
 def show_tasks(request, id):
-    tasks = Tasks.objects.filter(projects__name=Projects.objects.get(pk=id).name)
+    emp = Employees.objects.get(user=request.user)
+    proj = Projects.objects.get(pk=id)
+
+    if not request.user.is_superuser and not proj in emp.employee_to_project.all():
+        raise 404
+
+    tasks = Tasks.objects.filter(projects__name=proj.name)
     types = {
         0: [],
         1: [],
@@ -464,7 +480,10 @@ def object_edit(request, id):
         context = {'form': form}
         return render(request, template_name='core/object_edit.html', context=context)
     else:
+        emp = Employees.objects.get(user=request.user)
         obj = Projects.objects.get(pk=id)
+        if not request.user.is_superuser and not obj in emp.employee_to_project.all():
+            raise Http404
         form = ProjectForm()
         if request.method == 'POST':
             a = Projects.objects.get(pk=id)
@@ -499,6 +518,7 @@ def object_edit(request, id):
 
 
 @login_required(login_url='login')
+@user_passes_test(lambda u: u.is_superuser)
 def task_edit(request, proj_id, id):
     if id == 0:
         form = TaskForm()
@@ -534,10 +554,12 @@ def task_edit(request, proj_id, id):
                    }
         return render(request, template_name='core/task_edit.html', context=context)
 
-
 @login_required(login_url='login')
 def get_task_by_id(request, id):
+    emp = Employees.objects.get(user=request.user)
     task = Tasks.objects.get(id=id)
+    if not request.user.is_superuser and task not in emp.employee_to_task.all():
+        raise Http404
     members = task.employees
     messages = task.messages
     proj_id = task.projects.id
