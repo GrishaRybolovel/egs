@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.contrib.auth.models import User
 from django.forms import ModelForm
-from .models import Projects, Employees, Documents, Messages, Divisions, Tasks
+from .models import Projects, Employees, Documents, Messages, Divisions, Tasks, Mails
 
 class CreateUserForm(UserCreationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username',
@@ -47,6 +47,7 @@ class TaskForm(ModelForm):
     class Meta:
         model = Tasks
         fields = ['name', 'created', 'completion', 'done']
+
 
 class ProjectForm(ModelForm):
     STATUS_CHOICES = [
@@ -160,6 +161,64 @@ class MessageForm(ModelForm):
     class Meta:
         model = Messages
         fields = ['message', 'doc']
+
+
+class MessageMailForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.mails_tag = kwargs.pop('mails_tag', None)
+        self.author = kwargs.pop('author', None)
+        super(MessageMailForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        obj = super(MessageMailForm, self).save(commit=False)
+        obj.mails_tag = self.mails_tag
+        obj.author = self.author
+        if commit:
+            obj.save()
+        return obj
+
+    message = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder': 'Текст сообщения',
+                                                                  'class': 'form-control'}), max_length=1024)
+    doc = forms.FileField(required=False, widget=forms.FileInput(attrs={'class': 'form-control'}))
+    class Meta:
+        model = Messages
+        fields = ['message', 'doc']
+
+
+class MailForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.created = kwargs.pop('created', None)
+        self.author = kwargs.pop('author', None)
+        self.completion = kwargs.pop('completion', None)
+        self.type = kwargs.pop('type', None)
+        self.done = kwargs.pop('done', None)
+        super(MailForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        obj = super(MailForm, self).save(commit=False)
+        obj.created = self.created
+        obj.author = self.author
+        obj.completion = self.completion
+        obj.type = self.type
+        obj.done = self.done
+
+        if commit:
+            obj.save()
+        return obj
+
+    name = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Название',
+                                                             'class': 'form-control'}), max_length=255)
+    naming = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Наименование отправителя/получателя',
+                                                                         'class': 'form-control'}), max_length=255)
+    date_reg = forms.DateField(required=True, widget=forms.DateInput(format='%d/%m/%Y',
+                                                                     attrs={'class': 'form-control icon-calendar',
+                                                                            'type': 'date'}))
+    number = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Номер',
+                                                             'class': 'form-control'}), max_length=255)
+
+    class Meta:
+        model = Mails
+        fields = ['name', 'naming', 'date_reg', 'number']
 
 
 class EmployeeForm(ModelForm):

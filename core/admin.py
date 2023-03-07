@@ -37,6 +37,11 @@ class DivisionsAdmin(admin.ModelAdmin):
 class CompanyDocumentsAdmin(admin.ModelAdmin):
     list_display = ('id',)
 
+class MailsAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'naming', 'created', 'date_reg', 'number', 'author')
+    list_display_links = ('id',)
+    search_fields = ('id', 'name', 'date_reg')
+
 admin.site.register(Employees, EmployeesAdmin)
 admin.site.register(Messages, MessagesAdmin)
 admin.site.register(Tasks, TasksAdmin)
@@ -44,3 +49,4 @@ admin.site.register(Projects, ProjectsAdmin)
 admin.site.register(Documents, DocumentsAdmin)
 admin.site.register(Divisions, DivisionsAdmin)
 admin.site.register(CompanyDocuments, CompanyDocumentsAdmin)
+admin.site.register(Mails, MailsAdmin)

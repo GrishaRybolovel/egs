@@ -14,7 +14,7 @@ class Employees(models.Model):
     last_name = models.CharField(max_length=63, blank=True, verbose_name='Отчество')
     phone = models.CharField(max_length=255, blank=True, verbose_name='Телефон')
     address = models.CharField(max_length=255, blank=True, verbose_name='Адрес')
-    date_of_birth = models.DateField(verbose_name='Дата рождения', blank=True, null=True)
+    date_of_birth = models.DateField(verbose_name='Дата рождения', null=True)
     date_of_start = models.DateField(verbose_name='Дата начала', blank=True, null=True)
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.deletion.CASCADE, null=True)
     ROLE_IN_SYSTEM_CHOICES = [
@@ -90,6 +90,17 @@ class Employees(models.Model):
         verbose_name='Документы'
     )
 
+    employee_to_mail = models.ManyToManyField(
+        "Mails",
+        related_name="employee_to_mail",
+        blank=True,
+        verbose_name='Письма'
+    )
+
+    @property
+    def mails(self) -> QuerySet['Mails']:
+        return Mails.objects.filter(employees_to_mails__name=self.name)
+
     def __str__(self):
         return self.surname + " " + self.name + " " + self.last_name
 
@@ -125,7 +136,15 @@ class Messages(models.Model):
         "Tasks",
         on_delete=models.deletion.PROTECT,
         related_name="messages",
-        verbose_name='Задание'
+        verbose_name='Задание',
+        null=True
+    )
+    mails_tag = models.ForeignKey(
+        "Mails",
+        on_delete=models.deletion.PROTECT,
+        related_name="messages_to_mails",
+        verbose_name='Письмо',
+        null=True
     )
 
     time = models.DateTimeField(auto_now=True)
@@ -206,6 +225,46 @@ class Tasks(models.Model):
 
 
 
+class Mails(models.Model):
+    name = models.CharField(max_length=1023, verbose_name='Описание')
+    naming = models.CharField(max_length=1023, verbose_name='Наименование отправителя/получателя')
+    created = models.DateField(verbose_name='Дата создания', auto_now=True)
+    date_reg = models.DateField(verbose_name='Дата регистрации')
+    number = models.CharField(max_length=1023, verbose_name='Номер')
+    author = models.ForeignKey(
+        "Employees",
+        on_delete=models.deletion.CASCADE,
+        verbose_name='Автор'
+    )
+    completion = models.DateField(verbose_name='Срок выполнения', null=True, blank=True)
+    done = models.DateField(verbose_name='Дата выполнения', null=True, blank=True)
+    type = models.CharField(max_length=256, verbose_name='Тип')
+    projects_to_mails = models.ForeignKey(
+        "Projects",
+        on_delete=models.deletion.CASCADE,
+        related_name="projects_to_mails",
+        null=True,
+        blank=True,
+        verbose_name="Объект"
+    )
+
+    @property
+    def messages(self) -> QuerySet[Messages]:
+        return Messages.objects.filter(mails_tag__name=self.name)
+
+    @property
+    def employees(self) -> QuerySet[Employees]:
+        return Employees.objects.filter(employee_to_mail__name=self.name)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Письма'
+        verbose_name_plural = 'Письма'
+
+
+
 class Projects(models.Model):
     STATUS_CHOICES = [
         ('IWrk', 'В работе'),
@@ -275,6 +334,11 @@ class Projects(models.Model):
     @property
     def employee(self) -> QuerySet[Tasks]:
         f = Employees.objects.filter(employee_to_project__name=self.name)
+        return f
+
+    @property
+    def mail(self) -> QuerySet[Tasks]:
+        f = Mails.objects.filter(projects_to_mails__name=self.name)
         return f
 
     class Meta:

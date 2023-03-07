@@ -316,7 +316,7 @@
                     {% endfor %}
                 </div>
             {% endif %}
-            {% if requets.user.is_superuser %}
+            {% if request.user.is_superuser %}
                 <a href="{% url 'card_task' proj_id=proj_id id=0 %}"
                    class="btn btn-success mr-auto mb-auto">+Добавить задачу
                 </a>

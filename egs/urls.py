@@ -24,7 +24,7 @@ from .settings import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('core/', include('core.urls')),
-    re_path(r'^download/(?P<path>.*)$', serve, {'document_root': MEDIA_ROOT}),
+    re_path(r'^download/(?P<path>.*)$', serve, {'document_root': MEDIA_ROOT})
 ]
 
 if settings.DEBUG:

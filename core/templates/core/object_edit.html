@@ -182,7 +182,7 @@
                                         {% for emp in object.employee %}
                                             <tr>
                                                 <td>{{ emp }}<small>({{ emp.get_role }})</small></td>
-                                                {% if requets.user.is_superuser %}
+                                                {% if request.user.is_superuser %}
                                                     <td width="80">
                                                         <button type="submit" name="isSaved" value="{{ emp.id }}"
                                                                 class="btn btn-danger btn-sm">
@@ -194,7 +194,7 @@
                                         {% endfor %}
                                         </tbody>
                                     </table>
-                                    {% if requets.user.is_superuser %}
+                                    {% if request.user.is_superuser %}
                                         <select name="worker" class="form-control mb-3" id="id_status">
                                             <option selected hidden>Добавить сотрудника</option>
                                             {% for employee in employees %}
@@ -274,7 +274,7 @@
                                                         </button>
                                                     {% endif %}
                                                 </td>
-                                                {% if requets.user.is_superuser %}
+                                                {% if request.user.is_superuser %}
                                                     <td>
                                                         <a class="btn btn-danger btn-sm"
                                                            href="{% url 'document_del' id_doc=document.id id_proj=object.id %}">
@@ -298,7 +298,7 @@
                     </div>
                 </div>
             </div>
-            {% if requets.user.is_superuser %}
+            {% if request.user.is_superuser %}
                 <div class="m-t-20">
                     <a href="{% url 'object_del' id=object.id %}"
                        onclick="return confirm('Вы точно хотите удалить объект?')"
