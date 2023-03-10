@@ -249,7 +249,7 @@ def employee_add(request):
     return render(request, template_name='core/employee_add.html', context=context)
 
 def loginPage(request):
-    context = {'user': Employees.objects.filter(user=request.user)[0]}
+    context = {}
     if request.user.is_authenticated:
         return redirect('home')
     else:
