@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from django.views.static import serve
 from django.conf.urls.static import static
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from . import settings
 from .settings import *
 
@@ -26,6 +27,8 @@ urlpatterns = [
     path('core/', include('core.urls')),
     re_path(r'^download/(?P<path>.*)$', serve, {'document_root': MEDIA_ROOT})
 ]
+
+urlpatterns += staticfiles_urlpatterns()
 
 if settings.DEBUG:
     urlpatterns+=static(MEDIA_URL, document_root=MEDIA_ROOT)
