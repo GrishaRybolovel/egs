@@ -30,3 +30,4 @@ telegram==0.0.1
 tornado==6.2
 tzdata==2022.7
 tzlocal==4.2
+whitenoise==6.4.0
