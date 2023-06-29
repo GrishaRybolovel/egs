@@ -363,7 +363,7 @@ def mails(request, id):
     emp = Employees.objects.get(email=request.user.email)
     mails = []
     if not emp.role == 'DI':
-        mails = emp.mails()
+        mails = emp.employee_to_mail.all()
     else:
         mails = Mails.objects.all()
     mailType = ''

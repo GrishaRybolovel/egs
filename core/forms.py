@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.forms import ModelForm
 from .models import Projects, Employees, Documents, Messages, Divisions, Tasks, Mails
 
-class CreateUserForm(ModelForm):
+class CreateUserForm(UserCreationForm):
     email = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Email',
                                                           'class': 'form-control form-control-user'}), max_length=255)
     password1 = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Password',
