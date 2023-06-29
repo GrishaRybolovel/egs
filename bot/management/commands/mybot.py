@@ -64,7 +64,7 @@ class Command(BaseCommand):
     help = 'Телеграм-бот'
 
     def handle(self, *args, **options):
-        request = Request(connect_timeout=0.5, read_timeout=1.0)
+        request = Request(connect_timeout=0.5, read_timeout=1.0, con_pool_size=8)
 
         bot = Bot(request=request, token=TOKEN)
 
