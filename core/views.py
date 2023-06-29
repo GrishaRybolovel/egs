@@ -14,16 +14,18 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 # Create your views here.
 from core.models import *
 import datetime
+from datetime import timezone
+import time
 
-from .models import Tasks, Projects
+from .models import Tasks, Projects, Notification
 
 @login_required(login_url='login')
 def home(request):
     tasks = []
-    if request.user.is_superuser:
+    emp = Employees.objects.filter(email=request.user.email)[0]
+    if emp.role == 'DI':
         tasks = Tasks.objects.all()
     else:
-        emp = Employees.objects.get(user=request.user)
         tasks = emp.employee_to_task.all()
 
     types = {
@@ -47,6 +49,31 @@ def home(request):
         for element in object.project_to_document.all():
             if (datetime.date.today() - element.duration).days >= 30:
                 docs.append({'doc' : element, 'obj' : object})
+
+    user = Employees.objects.filter(email=request.user.email)[0]
+    notifications_before = Notification.objects.exclude(users_read__in = [user, ]).all()
+
+    notifications = []
+    for notification in notifications_before:
+        postponed = None
+        try:
+            postponed = Postponed.objects.filter(user=user, notification=notification)[0]
+        except Exception as e:
+            pass
+        if postponed:
+            if datetime.datetime.now(timezone.utc) - postponed.postponed_at >= datetime.timedelta(hours=24):
+                notifications.append(notification)
+        else:
+            notifications.append(notification)
+        print(postponed)
+
+    # print(type(notifications_before))
+
+    # notifications = []
+    # for notification in notifications_before:
+    #     if user in notification.users_read.all():
+    #         notifications.append(notification)
+
     context = {
         'tasks': tasks,
         't0' : len(types[0]),
@@ -59,10 +86,37 @@ def home(request):
         't7': len(types[7]),
         't8': len(types[8]),
         'docs': docs,
-        'user': Employees.objects.filter(user=request.user)[0]
+        'user': user,
+        'notifications': notifications
     }
     return render(request, 'core/index.html', context)
 
+@login_required
+def mark_notification_as_read(request, notification_id):
+    notification = Notification.objects.get(id=notification_id)
+    notification.mark_as_read(request.user)
+    return redirect('home')
+
+@login_required
+def mark_notification_as_postponed(request, notification_id):
+    notification = Notification.objects.get(id=notification_id)
+    notification.postpone(request.user)
+    return redirect('home')
+
+@login_required
+def create_notification(request):
+    if request.method == 'POST':
+        title = request.POST['title']
+        message = request.POST['message']
+        notification = Notification.objects.create(title=title, message=message)
+        users = Employees.objects.all()
+        # notification.users_read.set(users)  # Distribute the notification to all users
+        return redirect('home')  # Redirect to the notifications page
+    notifications = Notification.objects.all().order_by('-created_at')
+    context = {
+        'notificationss': notifications,
+    }
+    return render(request, 'core/create_notification.html', context=context)
 
 @login_required(login_url='login')
 def show_docs(request):
@@ -70,7 +124,7 @@ def show_docs(request):
 
     context = {
         'docs' : docs,
-        'user': Employees.objects.filter(user=request.user)[0]
+        'user': Employees.objects.filter(email=request.user.email)[0]
     }
 
     return render(request, 'core/documents.html', context)
@@ -93,7 +147,7 @@ def docs_edit(request, id_doc):
                 print(form.errors)
                 print('ERROR')
         context = {'form': form,
-                   'user': Employees.objects.filter(user=request.user)[0]}
+                   'user': Employees.objects.filter(email=request.user.email)[0]}
         return render(request, template_name='core/document_adding.html', context=context)
     else:
         document = Documents.objects.get(pk=id_doc)
@@ -118,7 +172,7 @@ def docs_edit(request, id_doc):
                     form.initial[f'{field.name}'] = val
         context = {'document': Documents.objects.get(pk=id_doc),
                    'form': form,
-                   'user': Employees.objects.filter(user=request.user)[0]}
+                   'user': Employees.objects.filter(email=request.user.email)[0]}
         return render(request, template_name='core/document_adding.html', context=context)
 
 
@@ -138,7 +192,7 @@ def employees(request):
     emps = Employees.objects.all()
     context = {
         'employees' : emps,
-        'user': Employees.objects.filter(user=request.user)[0]
+        'user': Employees.objects.filter(email=request.user.email)[0]
     }
     return render(request, 'core/employees.html', context)
 
@@ -167,7 +221,7 @@ def divisions(request):
     context = {
         'form' : form,
         'divs': divs,
-        'user': Employees.objects.filter(user=request.user)[0]
+        'user': Employees.objects.filter(email=request.user.email)[0]
     }
     return render(request, 'core/company_structure.html', context)
 
@@ -185,11 +239,11 @@ def employee_edit(request, id):
             else:
                 print(form.errors)
         context = {'form': form,
-                   'user': Employees.objects.filter(user=request.user)[0]}
+                   'user': Employees.objects.filter(email=request.user.email)[0]}
         return render(request, template_name='core/object_edit.html', context=context)
     else:
         obj = Employees.objects.get(pk=id)
-        user_object = obj.user
+        # user_object = obj.user
         form = EmployeeForm()
         form_user = UpdateUserForm()
         if request.method == 'POST' and request.POST['isSaved'] == '1':
@@ -222,13 +276,13 @@ def employee_edit(request, id):
             else:
                 if val is not None:
                     form.initial[f'{field.name}'] = val
-        for field in user_object._meta.fields:
-            val = getattr(user_object, field.name)
-            if val is not None:
-                form_user.initial[f'{field.name}'] = val
+        # for field in user_object._meta.fields:
+        #     val = getattr(user_object, field.name)
+        #     if val is not None:
+        #         form_user.initial[f'{field.name}'] = val
         context = {'form': form,
                    'form_user' : form_user,
-                   'user': Employees.objects.filter(user=request.user)[0]}
+                   'user': Employees.objects.filter(email=request.user.email)[0]}
         return render(request, template_name='core/employee_edit.html', context=context)
 
 @login_required(login_url='login')
@@ -239,13 +293,13 @@ def employee_add(request):
         form = CreateUserForm(request.POST)
         if form.is_valid():
             b = form.save()
-            a = Employees(user=b, date_of_birth=datetime.date.today(), date_of_start=datetime.date.today(), division_id=1, status=True)
-            a.save()
-            return redirect('employee_edit', id=a.id)
+            # a = Employees(user=b, date_of_birth=datetime.date.today(), date_of_start=datetime.date.today(), division_id=1, status=True)
+            # a.save()
+            return redirect('employee_edit', id=b.id)
         else:
             print(form.errors)
     context = {'form': form,
-               'user': Employees.objects.filter(user=request.user)[0]}
+               'user': Employees.objects.filter(email=request.user.email)[0]}
     return render(request, template_name='core/employee_add.html', context=context)
 
 def loginPage(request):
@@ -288,12 +342,12 @@ def register(request):
         else:
             form = CreateUserForm()
         return render(request, 'core/register.html', {'form': form,
-                                                      'user': Employees.objects.filter(user=request.user)[0]})
+                                                      'user': Employees.objects.filter(email=request.user.email)[0]})
 
 #Useless method
 def forgot_password(request):
     context = {
-        'user': Employees.objects.filter(user=request.user)[0]
+        'user': Employees.objects.filter(email=request.user.email)[0]
     }
     return render(request, 'core/forgot-password.html', context=context)
 
@@ -306,9 +360,9 @@ def mails(request, id):
         '3' : 'SMR',
         '4' : 'PRO'
     }
-    emp = Employees.objects.get(user=request.user)
+    emp = Employees.objects.get(email=request.user.email)
     mails = []
-    if not request.user.is_superuser:
+    if not emp.role == 'DI':
         mails = emp.mails()
     else:
         mails = Mails.objects.all()
@@ -319,8 +373,10 @@ def mails(request, id):
         mailType = 'Исходящие'
 
     context = {'mails': mails,
-               'user': Employees.objects.filter(user=request.user)[0],
-               'type' : mailType}
+               'user': Employees.objects.filter(email=request.user.email)[0],
+               'type' : mailType,
+               'type_id': id,
+               'ttype': str(id)}
     return render(request, 'core/mails.html', context=context)
 
 
@@ -332,24 +388,24 @@ def objects(request, id):
         '3' : 'SMR',
         '4' : 'PRO'
     }
-    emp = Employees.objects.get(user=request.user)
+    emp = Employees.objects.get(email=request.user.email)
     objects = []
-    if not request.user.is_superuser:
+    if not emp.role == 'DI':
         objects = emp.employee_to_project.filter(proj_type=rel[str(id)])
     else:
         objects = Projects.objects.filter(proj_type=rel[str(id)])
 
     context = {'objects': objects,
-               'user': Employees.objects.filter(user=request.user)[0]}
+               'user': Employees.objects.filter(email=request.user.email)[0]}
     return render(request, 'core/objects.html', context=context)
 
 
 @login_required(login_url='login')
 def show_tasks(request, id):
-    emp = Employees.objects.get(user=request.user)
+    emp = Employees.objects.get(email=request.user.email)
     proj = Projects.objects.get(pk=id)
 
-    if not request.user.is_superuser and not proj in emp.employee_to_project.all():
+    if not emp.role == 'DI' and not proj in emp.employee_to_project.all():
         raise 404
 
     tasks = Tasks.objects.filter(projects__name=proj.name)
@@ -366,8 +422,13 @@ def show_tasks(request, id):
     }
 
     for task in tasks:
-        tp = task.get_type
-        types[tp].append(task)
+        if emp.role == 'DI':
+            tp = task.get_type
+            types[tp].append(task)
+        elif emp in task.employees.all():
+            tp = task.get_type
+            types[tp].append(task)
+
 
     context = {
         'tasks': tasks,
@@ -381,7 +442,7 @@ def show_tasks(request, id):
         't7': len(types[7]),
         't8': len(types[8]),
         'proj_id' : id,
-        'user': Employees.objects.filter(user=request.user)[0]
+        'user': Employees.objects.filter(email=request.user.email)[0]
     }
     return render(request, template_name='core/tasks.html', context=context)
 
@@ -461,7 +522,7 @@ def document_edit(request, id_doc, id_proj):
                 print(form.errors)
                 print('ERROR')
         context = {'form': form,
-                   'user': Employees.objects.filter(user=request.user)[0]}
+                   'user': Employees.objects.filter(email=request.user.email)[0]}
         return render(request, template_name='core/document_adding.html', context=context)
     else:
         document = Documents.objects.get(pk=id_doc)
@@ -486,7 +547,7 @@ def document_edit(request, id_doc, id_proj):
                     form.initial[f'{field.name}'] = val
         context = {'document': Documents.objects.get(pk=id_doc),
                    'form': form,
-                   'user': Employees.objects.filter(user=request.user)[0]}
+                   'user': Employees.objects.filter(email=request.user.email)[0]}
         return render(request, template_name='core/document_adding.html', context=context)
 
 
@@ -520,10 +581,10 @@ def object_edit(request, id):
             else:
                 print(form.errors)
         context = {'form': form,
-                   'user': Employees.objects.filter(user=request.user)[0]}
+                   'user': Employees.objects.filter(email=request.user.email)[0]}
         return render(request, template_name='core/object_edit.html', context=context)
     else:
-        emp = Employees.objects.get(user=request.user)
+        emp = Employees.objects.get(email=request.user.email)
         obj = Projects.objects.get(pk=id)
         if not request.user.is_superuser and not obj in emp.employee_to_project.all():
             raise Http404
@@ -557,7 +618,7 @@ def object_edit(request, id):
                    'roles': roles,
                    'employees': Employees.objects.all(),
                    'documents': Projects.objects.get(pk=id).project_to_document.all(),
-                   'user': Employees.objects.filter(user=request.user)[0]}
+                   'user': Employees.objects.filter(email=request.user.email)[0]}
         return render(request, template_name='core/object_edit.html', context=context)
 
 
@@ -567,14 +628,14 @@ def task_edit(request, proj_id, id):
     if id == 0:
         form = TaskForm()
         if request.method == 'POST':
-            form = TaskForm(request.POST, project=Projects.objects.get(pk=proj_id), author=Employees.objects.get(user=request.user))
+            form = TaskForm(request.POST, project=Projects.objects.get(pk=proj_id), author=Employees.objects.get(email=request.user.email))
             if form.is_valid():
                 new_task = form.save()
                 return redirect('card_task', proj_id=proj_id, id=new_task.id)
             else:
                 print(form.errors)
         context = {'form': form,
-                   'user': Employees.objects.filter(user=request.user)[0]}
+                   'user': Employees.objects.filter(email=request.user.email)[0]}
         return render(request, template_name='core/task_edit.html', context=context)
     else:
         task = Tasks.objects.get(pk=id)
@@ -596,12 +657,12 @@ def task_edit(request, proj_id, id):
                     form.initial[f'{field.name}'] = val
         context = {'task': Tasks.objects.get(pk=id),
                    'form': form,
-                   'user': Employees.objects.filter(user=request.user)[0]}
+                   'user': Employees.objects.filter(email=request.user.email)[0]}
         return render(request, template_name='core/task_edit.html', context=context)
 
 @login_required(login_url='login')
 def get_task_by_id(request, id):
-    emp = Employees.objects.get(user=request.user)
+    emp = Employees.objects.get(email=request.user.email)
     task = Tasks.objects.get(id=id)
     if not request.user.is_superuser and task not in emp.employee_to_task.all():
         raise Http404
@@ -612,7 +673,7 @@ def get_task_by_id(request, id):
 
     if request.method == "POST":
         form = MessageForm(request.POST, request.FILES, task=Tasks.objects.get(id=id),
-                           author=Employees.objects.get(user=request.user))
+                           author=Employees.objects.get(email=request.user.email))
         if form.is_valid():
             print('OK')
             form.save()
@@ -622,43 +683,50 @@ def get_task_by_id(request, id):
         'task': task,
         'employees': Employees.objects.all(),
         'members': members,
-        'messages': messages.all().order_by('time'),
+        'messages': messages.all().order_by('-time'),
         'proj_id': proj_id,
-        'user': Employees.objects.filter(user=request.user)[0]
+        'user': Employees.objects.filter(email=request.user.email)[0]
     }
     return render(request, template_name='core/task.html', context=context)
 
 
 @login_required(login_url='login')
-def get_mail_by_id(request, id):
-    emp = Employees.objects.get(user=request.user)
+def get_mail_by_id(request, id, my_type):
+    emp = Employees.objects.get(email=request.user.email)
     mail = Mails.objects.get(id=id)
     if not request.user.is_superuser and mail not in emp.employee_to_mail.all():
         raise Http404
-    members = mail.employees
+    print(id)
+    members = None
+    try:
+        members = mail.employees
+    except:
+        pass
     messages = mail.messages
     proj_id = None if mail.projects_to_mails is None else mail.projects_to_mails.id
-    form = MessageMailForm()
+    form = MessageForm()
 
     if request.method == "POST":
-        form = MessageMailForm(request.POST, request.FILES, mails_tag=Mails.objects.get(id=id),
-                           author=Employees.objects.get(user=request.user))
+        form = MessageForm(request.POST, request.FILES, mails_tag=Mails.objects.get(id=id),
+                           author=Employees.objects.get(email=request.user.email))
         if form.is_valid():
             print('OK')
-            form.save()
-            return redirect('get_mail_by_id', id=id)
+            res = form.save()
+            print(res)
+            return redirect('get_mail_by_id', id=id, my_type=my_type)
     context = {
         'form': form,
         'mail': mail,
         'employees': Employees.objects.all(),
         'members': members,
-        'messages': messages.all().order_by('time'),
+        'messages': messages.all().order_by('-time'),
         'proj_id': proj_id,
-        'user': Employees.objects.filter(user=request.user)[0]
+        'type_id': my_type,
+        'user': Employees.objects.filter(email=request.user.email)[0]
     }
     return render(request, template_name='core/mail.html', context=context)
 
-def employee_mail(request, id):
+def employee_mail(request, id, my_type=None):
     if request.method == 'POST':
         if request.POST.get('isSaved') == '-2':
             mail = Mails.objects.get(pk=id)
@@ -676,22 +744,23 @@ def employee_mail(request, id):
             except Exception as e:
                print(str(e))
                pass
-    return redirect('get_mail_by_id', id=id)
+    return redirect('get_mail_by_id', id=id, my_type=my_type)
 
 @login_required(login_url='login')
 @user_passes_test(lambda u: u.is_superuser)
-def mail_edit(request, id):
+def mail_edit(request, id, my_type = None):
+    emp = Employees.objects.filter(email=request.user.email)[0]
     if id == 0:
         form = MailForm()
         if request.method == 'POST':
-            form = MailForm(request.POST)
+            form = MailForm(request.POST, type=my_type, author=emp)
             if form.is_valid():
                 new_task = form.save()
-                return redirect('mail_edit', id=new_task.id)
+                return redirect('mail_edit', id=new_task.id, my_type=my_type)
             else:
                 print(form.errors)
         context = {'form': form,
-                   'user': Employees.objects.filter(user=request.user)[0]}
+                   'user': Employees.objects.filter(email=request.user.email)[0]}
         return render(request, template_name='core/mail_edit.html', context=context)
     else:
         mail = Mails.objects.get(pk=id)
@@ -716,7 +785,7 @@ def mail_edit(request, id):
         context = {'mail': Mails.objects.get(pk=id),
                    'form': form,
                    'employees': Employees.objects.all(),
-                   'user': Employees.objects.filter(user=request.user)[0]}
+                   'user': Employees.objects.filter(email=request.user.email)[0]}
         return render(request, template_name='core/mail_edit.html', context=context)
 
 

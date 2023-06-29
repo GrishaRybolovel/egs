@@ -92,7 +92,7 @@
                                         {% for emp in task.employees.all %}
                                             <tr>
                                                 <td>{{ emp }}<small>({{ emp.get_role }})</small></td>
-                                                {% if request.user.is_superuser %}
+                                                {% if user.role == 'DI' %}
                                                     <td width="10">
                                                         <button type="submit" name="isSaved" value="{{ emp.id }}"
                                                                 class="btn btn-danger btn-sm">
@@ -104,7 +104,7 @@
                                         {% endfor %}
                                         </tbody>
                                     </table>
-                                    {% if request.user.is_superuser %}
+                                    {% if user.role == 'DI' %}
                                         <select name="worker" class="form-control mb-3" id="id_status">
                                             <option selected hidden>Добавить сотрудника</option>
                                             {% for employee in employees %}

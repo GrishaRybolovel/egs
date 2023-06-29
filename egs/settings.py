@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -39,8 +40,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core.apps.CoreConfig'
+    # 'core.apps.CoreConfig',
+    'core',
+    'bot'
+    # 'core',
+    # 'login'
 ]
+
+AUTH_USER_MODEL = 'core.Employees'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -138,3 +145,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+TOKEN = '6265523731:AAF5IoH5_YCJCj5Me-jFwcC7nlYgY6kRjEY'
+BOT_URL = f'https://api.telegram.org/bot{TOKEN}/'

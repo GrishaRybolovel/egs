@@ -5,7 +5,7 @@ from .models import *
 # Register your models here.
 
 class EmployeesAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'surname', 'role', 'phone', 'user', 'post', 'status')
+    list_display = ('id', 'name', 'surname', 'phone', 'post', 'status')
     list_display_links = ('id',)
     search_fields = ('id', 'name', 'role')
 
@@ -42,6 +42,16 @@ class MailsAdmin(admin.ModelAdmin):
     list_display_links = ('id',)
     search_fields = ('id', 'name', 'date_reg')
 
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'message')
+    list_display_links = ('id', )
+    search_fields = ('id', 'title')
+
+class PostponeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'notification', 'user')
+    list_display_links = ('id', )
+    search_fields = ('id',)
+
 admin.site.register(Employees, EmployeesAdmin)
 admin.site.register(Messages, MessagesAdmin)
 admin.site.register(Tasks, TasksAdmin)
@@ -50,3 +60,5 @@ admin.site.register(Documents, DocumentsAdmin)
 admin.site.register(Divisions, DivisionsAdmin)
 admin.site.register(CompanyDocuments, CompanyDocumentsAdmin)
 admin.site.register(Mails, MailsAdmin)
+admin.site.register(Notification, NotificationAdmin)
+admin.site.register(Postponed, PostponeAdmin)

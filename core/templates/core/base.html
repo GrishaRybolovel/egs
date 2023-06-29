@@ -51,6 +51,13 @@
                     <span>Сводка</span></a>
             </li>
 
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'create_notification' %}">
+                    <i class="fas fa-fw fa-sticky-note"></i>
+                    <span>Оповещения</span></a>
+            </li>
+
+            {% if user.role == 'DI' %}
             <!-- Divider -->
             <hr class="sidebar-divider">
 
@@ -71,6 +78,7 @@
                     </div>
                 </div>
             </li>
+            {% endif %}
 
             <!-- Divider -->
             <hr class="sidebar-divider">
@@ -199,8 +207,75 @@
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
+{#            {% if page_not == 'true' %}#}
+{#                {% block content %}#}
+{#                {% endblock %}#}
+{#            {% else %}#}
+
+            {% for notification in notifications %}
+            <div class="container">
+
+                <!-- Outer Row -->
+                <div class="row justify-content-center">
+
+                    <div class="col-xl-10 col-lg-12 col-md-9">
+
+                        <div class="card o-hidden border-0 shadow-lg my-5">
+                            <div class="card-body p-0">
+                                <!-- Nested Row within Card Body -->
+                                <div class="row">
+
+                                    <div class="col-lg-6">
+                                        <div class="p-5">
+                                              <div class="notification">
+                                                <h3 style="margin-bottom: 30px">Название: {{ notification.title }}</h3>
+                                                <p>Текст оповещения:</p>
+                                                <p style="margin-left: 30px; margin-bottom: 30px">{{ notification.message }}</p>
+                                                <p>Created at: {{ notification.created_at }}</p>
+                                                {% if user in notification.users_read.all %}
+                                                  <p>Read</p>
+                                                {% else %}
+                                                  <a class="btn btn-danger waves-effect waves-light m-l-10 btn-md" href="{% url 'mark_notification_as_read' notification.id %}">Прочитать</a>
+                                                  <a class="btn btn-success waves-effect waves-light m-l-10 btn-md"href="{% url 'mark_notification_as_postponed' notification.id %}">Отложить</a>
+                                                {% endif %}
+                                              </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            {% empty %}
                 {% block content %}
                 {% endblock %}
+            {% endfor %}
+{#            {% endif %}#}
+
+{#            <div id="notification-overlay">#}
+{#              <div id="notification-container">#}
+{#                {% for notification in notifications %}#}
+{#                  <div class="notification">#}
+{#                    <h3>{{ notification.title }}</h3>#}
+{#                    <p>{{ notification.message }}</p>#}
+{#                    <p>Created at: {{ notification.created_at }}</p>#}
+{#                    {% if user in notification.users_read.all %}#}
+{#                      <p>Read</p>#}
+{#                    {% else %}#}
+{#                      <a href="{% url 'mark_notification_as_read' notification.id %}">Mark as Read</a>#}
+{#                    {% endif %}#}
+{#                  </div>#}
+{#                {% empty %}#}
+{#                    {% block content %}#}
+{#                    {% endblock %}#}
+{#                {% endfor %}#}
+{#              </div>#}
+{#            </div>#}
                 <!-- /.container-fluid -->
 
             </div>

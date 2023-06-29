@@ -37,10 +37,10 @@
                         </tfoot>
                         <tbody>
                         {% for mail in mails %}
-                            {% if type == mail.type%}
+                            {% if ttype == mail.type%}
                                 <tr>
                                     <td><a color="#1cc88a" class="btn btn-primary btn-sm"
-                                           href="{% url 'get_mail_by_id' id=mail.id %}"
+                                           href="{% url 'get_mail_by_id' id=mail.id my_type=type_id%}"
                                            class="label label-table label-success ">{{ mail.id }}</a></td>
                                     <td>{{ mail.name }}</td>
                                     <td>{{ mail.naming }}</td>
@@ -54,7 +54,7 @@
                     </table>
                     {% if request.user.is_superuser %}
                         <div class="m-t-20">
-                            <a href="#">
+                            <a href="{% url 'mail_edit' id=0 my_type=type_id%}">
                                 <button type="submit" class="btn btn-success waves-effect waves-light m-l-10 btn-md"
                                         name="isSaved" value="1">+Добавить письмо
                                 </button>

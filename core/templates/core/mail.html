@@ -79,7 +79,7 @@
                     </div>
                     <div class="card" style="background-color:white">
                         <form class="form-horizontal" role="form" method="POST"
-                              action="{% url 'employee_mail' id=mail.id %}">
+                              action="{% url 'employee_mail' id=mail.id my_type=type_id%}">
                             {% csrf_token %}
                             <div class="col-sm-12 ml-1 mt-2 mb-2">
                                 <div class="card-box">
@@ -91,7 +91,7 @@
                                         {% for emp in mail.employees %}
                                             <tr>
                                                 <td>{{ emp }}<small>({{ emp.get_role }})</small></td>
-                                                {% if request.user.is_superuser %}
+                                                {% if user.role == 'DI' %}
                                                     <td width="10">
                                                         <button type="submit" name="isSaved" value="{{ emp.id }}"
                                                                 class="btn btn-danger btn-sm">
@@ -103,7 +103,7 @@
                                         {% endfor %}
                                         </tbody>
                                     </table>
-                                    {% if request.user.is_superuser %}
+                                    {% if user.role == 'DI' %}
                                         <select name="worker" class="form-control mb-3" id="id_status">
                                             <option selected hidden>Добавить сотрудника</option>
                                             {% for employee in employees %}
@@ -139,7 +139,7 @@
                             </div>
                         {% elif not mail.done %}
                             <form class="form-horizontal ml-4 mb-2" role="form" method="POST"
-                                  action="{% url 'employee_mail' id=mail.id %}">
+                                  action="{% url 'employee_mail' id=mail.id my_type=type_id%}">
                                 {% csrf_token %}
                                 <button type="submit"
                                         onclick="return confirm('Вы точно хотите закрыть письмо?')"
@@ -148,7 +148,7 @@
                                 </button>
                             </form>
                             {% if request.user.is_superuser %}
-                                <a href="{% url 'mail_edit' id=mail.id%}"
+                                <a href="{% url 'mail_edit' id=mail.id my_type=type_id%}"
                                    class="btn btn-success btn-rounded waves-effect waves-light m-l-10 btn-md"
                                    style="margin-top:10px;margin-left: 100px; margin-right: 100px; margin-bottom: 10px">Редактировать
                                     письмо</a>

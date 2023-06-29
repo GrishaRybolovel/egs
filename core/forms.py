@@ -5,9 +5,7 @@ from django.contrib.auth.models import User
 from django.forms import ModelForm
 from .models import Projects, Employees, Documents, Messages, Divisions, Tasks, Mails
 
-class CreateUserForm(UserCreationForm):
-    username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username',
-                                                             'class': 'form-control form-control-user'}), max_length=255)
+class CreateUserForm(ModelForm):
     email = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Email',
                                                           'class': 'form-control form-control-user'}), max_length=255)
     password1 = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Password',
@@ -15,8 +13,8 @@ class CreateUserForm(UserCreationForm):
     password2 = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Repeat Password',
                                                               'class': 'form-control form-control-user'}), max_length=255)
     class Meta:
-        model = User
-        fields = ['username', 'email', 'password1', 'password2']
+        model = Employees
+        fields = ['email', 'password1', 'password2']
 
 class TaskForm(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -145,12 +143,14 @@ class MessageForm(ModelForm):
     def __init__(self, *args, **kwargs):
         self.task = kwargs.pop('task', None)
         self.author = kwargs.pop('author', None)
+        self.mails_tag = kwargs.pop('mails_tag', None)
         super(MessageForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
         obj = super(MessageForm, self).save(commit=False)
         obj.task = self.task
         obj.author = self.author
+        obj.mails_tag = self.mails_tag
         if commit:
             obj.save()
         return obj

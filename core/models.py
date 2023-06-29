@@ -1,22 +1,47 @@
 from django.db import models
 from django.conf import settings
 import datetime
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import PermissionsMixin
 
 # Create your models here.
 
-#One to many(Project might have multiple tasks, but task must have only one project)
 from django.db.models import QuerySet
+from django.db.models.signals import post_save
+
+from egs.managers import UserManager
+from django.dispatch import receiver
+import requests
+from egs.settings import BOT_URL
+from bot.models import TelegramUsers
 
 
-class Employees(models.Model):
-    name = models.CharField(max_length=63, blank=True, verbose_name='Имя')
-    surname = models.CharField(max_length=63, blank=True, verbose_name='Фамилия')
-    last_name = models.CharField(max_length=63, blank=True, verbose_name='Отчество')
-    phone = models.CharField(max_length=255, blank=True, verbose_name='Телефон')
-    address = models.CharField(max_length=255, blank=True, verbose_name='Адрес')
+#Class for Employees
+class Employees(AbstractBaseUser, PermissionsMixin):
+
+    #Basic user info
+    email = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=63, verbose_name='Имя')
+    surname = models.CharField(max_length=63, verbose_name='Фамилия')
+    last_name = models.CharField(max_length=63, blank=True, null=True, verbose_name='Отчество')
+
+    #Some more specific data
+    phone = models.CharField(max_length=255, blank=True, null=True, verbose_name='Телефон')
+    address = models.CharField(max_length=255, blank=True, null=True, verbose_name='Адрес')
     date_of_birth = models.DateField(verbose_name='Дата рождения', null=True)
     date_of_start = models.DateField(verbose_name='Дата начала', blank=True, null=True)
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.deletion.CASCADE, null=True)
+    inn = models.CharField(max_length=256, blank=True, null=True, verbose_name='ИНН')
+    snils = models.CharField(max_length=256, blank=True, null=True, verbose_name='СНИЛС')
+    passport = models.TextField(max_length=256, blank=True, null=True, verbose_name='Паспорт')
+    post = models.CharField(max_length=255, blank=True, null=True, verbose_name='Должность')
+    info_about_relocate = models.TextField(max_length=511, blank=True, null=True, verbose_name='Информация о переводе')
+    attestation = models.CharField(max_length=255, blank=True, null=True, verbose_name='Аттестация')
+    qualification = models.CharField(max_length=255, blank=True, null=True, verbose_name='Повышение квалификации')
+    retraining = models.CharField(max_length=255, blank=True, null=True, verbose_name='Проф. подготовка')
+    status = models.BooleanField(verbose_name='Статус', default=True)
+    is_staff = models.BooleanField(verbose_name='Админ', default=False)
+    is_active = models.BooleanField('active', default=True)
+    # is_admin = models.BooleanField(default=False)
     ROLE_IN_SYSTEM_CHOICES = [
         ('DI', 'Директор'),
         ('ME', 'Менеджер/Инженер'),
@@ -30,18 +55,18 @@ class Employees(models.Model):
                             default='RA',
                             verbose_name='Роль',
                             blank=True)
-    inn = models.CharField(max_length=256, blank=True, verbose_name='ИНН')
-    snils = models.CharField(max_length=256, blank=True, verbose_name='СНИЛС')
-    passport = models.TextField(max_length=256, blank=True, verbose_name='Паспорт')
+
+
+    #Some company data
     COMPANY_CHOICES = [
         ('GP', 'ГАЗСПЕЦПРОЕКТ'),
         ('NG', 'Не ГАЗСПЕЦПРОЕКТ')
     ]
     company = models.CharField(max_length=3,
-                            choices=COMPANY_CHOICES,
-                            default='GP',
-                            verbose_name='Компания',
-                            blank=True)
+                               choices=COMPANY_CHOICES,
+                               default='GP',
+                               verbose_name='Компания',
+                               blank=True)
     DIVISION_CHOICES = [
         ('GSP', 'ГАЗСПЕЦПРОЕКТ'),
         ('PTO', 'Производственно-технический отдел (ПТО)'),
@@ -62,14 +87,8 @@ class Employees(models.Model):
         blank=True,
         verbose_name='Начальник'
     )
-    post = models.CharField(max_length=255, blank=True, verbose_name='Должность')
-    info_about_relocate = models.TextField(max_length=511, blank=True, verbose_name='Информация о переводе')
-    attestation = models.CharField(max_length=255, blank=True, verbose_name='Аттестация')
-    qualification = models.CharField(max_length=255, blank=True, verbose_name='Повышение квалификации')
-    retraining = models.CharField(max_length=255, blank=True, verbose_name='Проф. подготовка')
-    status = models.BooleanField(verbose_name='Статус')
 
-
+    #Some many to many fields and functions
     employee_to_task = models.ManyToManyField(
         "Tasks",
         related_name="employees",
@@ -101,9 +120,6 @@ class Employees(models.Model):
     def mails(self) -> QuerySet['Mails']:
         return Mails.objects.filter(employees_to_mails__name=self.name)
 
-    def __str__(self):
-        return self.surname + " " + self.name + " " + self.last_name
-
     def get_role(self):
 
         if self.role == 'DI':
@@ -119,9 +135,22 @@ class Employees(models.Model):
         if self.role == 'KS':
             return 'Кадровый специалист'
 
+    objects = UserManager()
+
+    EMAIL_FIELD = 'email'
+    USERNAME_FIELD = 'email'
+
+    def __str__(self):
+        return str(self.surname + ' ' + self.name)
+
     class Meta:
-        verbose_name = 'Сотрудники'
+        verbose_name = 'Сотрудник'
         verbose_name_plural = 'Сотрудники'
+
+
+@receiver(post_save, sender=Employees)
+def call_emp(sender, instance, **kwargs):
+    CompanyDocuments.objects.update_or_create(pk=1)
 
 
 
@@ -160,6 +189,38 @@ class Messages(models.Model):
     class Meta:
         verbose_name = 'Сообщения'
         verbose_name_plural = 'Сообщения'
+
+
+@receiver(post_save, sender=Messages)
+def call_message(sender, instance, **kwargs):
+    users = None
+    my_object = None
+    message_type = None
+    try:
+        users = instance.task.employees.all()
+        my_object = instance.task
+        message_type = 'ОБЪЕКТУ'
+    except:
+        users = instance.mails_tag.employees.all()
+        my_object = instance.mails_tag
+        message_type = 'ПИСЬМУ'
+
+    print(users)
+    print(my_object)
+    for user in users:
+        bot_user = None
+        print(user)
+        try:
+            bot_user = TelegramUsers.objects.get(phone_number=user.phone)
+        except:
+            pass
+        # print(bot_user.phone_number)
+        if bot_user:
+            chat_id = bot_user.chat_id
+
+            message = f'*Тип*:   СООБЩЕНИЕ ПО {message_type} *{my_object}*🔔\n\n*От*: {instance.author}\n\n*Текст сообщения*💬:\n    {instance.message}'
+
+            requests.post(BOT_URL + 'sendMessage', json={'chat_id': int(chat_id), 'text': message, 'parse_mode': 'Markdown'})
 
 
 
@@ -446,3 +507,56 @@ class CompanyDocuments(models.Model):
     class Meta:
         verbose_name = 'Документация компании'
         verbose_name_plural = 'Документация компании'
+
+
+class Notification(models.Model):
+    title = models.CharField(max_length=100)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+    users_read = models.ManyToManyField(Employees, blank=True)
+
+    def mark_as_read(self, user):
+        self.users_read.add(user)
+
+    def postpone(self, user):
+        my_object = Postponed.objects.update_or_create(notification=self, user=user,
+                                                       defaults={'postponed_at': datetime.datetime.now()})
+        print(my_object)
+
+
+class Postponed(models.Model):
+    notification = models.ForeignKey(
+        "Notification",
+        on_delete=models.deletion.CASCADE,
+        blank=True,
+        null=True,
+        related_name="notif",
+        verbose_name='Оповещение'
+    )
+    user = models.ForeignKey(
+        "Employees",
+        on_delete=models.deletion.CASCADE,
+        blank=True,
+        null=True,
+        related_name="postpone_user",
+        verbose_name='Пользователь'
+    )
+    postponed_at = models.DateTimeField()
+
+
+@receiver(post_save, sender=Notification)
+def call_notification(sender, instance, **kwargs):
+    users = Employees.objects.all()
+    for user in users:
+        bot_user = None
+        try:
+            bot_user = TelegramUsers.objects.get(phone_number=user.phone)
+        except:
+            pass
+        if bot_user:
+            chat_id = bot_user.chat_id
+
+            message = f'*Тип*:   УВЕДОМЛЕНИЕ🔔\n\n*Название*📌:\n    {instance.title}\n\n*Текст уведомления*💬:\n    {instance.message}'
+
+            requests.post(BOT_URL + 'sendMessage', json={'chat_id': int(chat_id), 'text': message, 'parse_mode': 'Markdown'})

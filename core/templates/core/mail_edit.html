@@ -89,8 +89,7 @@
         <div class="col-xl-12 col-md-6 mb-4">
             <div class="card shadow h-100 py-2">
                 <div class="card-body">
-                    <form class="form-horizontal" role="form" method="POST"
-                          action="{% url 'employee_mail' id=mail.id %}">
+                    <form class="form-horizontal" role="form" method="POST">
                         {% csrf_token %}
                         <div class="col-sm-12">
                             <div class="card-box">

@@ -13,9 +13,9 @@ urlpatterns = [
      path('login/', loginPage, name='login'),
      path('docs/', show_docs, name='show_docs'),
      path('mails/<int:id>', mails, name='mails'),
-     path('mails/show/<int:id>', get_mail_by_id, name='get_mail_by_id'),
-     path('mails/show/edit/<int:id>', employee_mail, name='employee_mail'),
-     path('mails/edit/<int:id>', mail_edit, name='mail_edit'),
+     path('mails/show/<int:id>/<int:my_type>', get_mail_by_id, name='get_mail_by_id'),
+     path('mails/show/edit/<int:id>/<int:my_type>', employee_mail, name='employee_mail'),
+     path('mails/edit/<int:id>/<int:my_type>', mail_edit, name='mail_edit'),
      path('docs/comp_edit/<int:id_doc>', docs_edit, name='comp_edit'),
      path('docs/comp_edit/del/<int:id_doc>', docs_del, name='comp_del'),
      path('divisions/', divisions, name='divisions'),
@@ -36,5 +36,9 @@ urlpatterns = [
      path('register/', register, name='register'),
      path('logout/', logoutUser, name='logout'),
      path('forgot-password/', forgot_password, name='forgot_password'),
+     path('create-notification/', create_notification, name='create_notification'),
+     path('notifications/mark-read/<int:notification_id>/', mark_notification_as_read, name='mark_notification_as_read'),
+     path('notifications/mark-postponed/<int:notification_id>/', mark_notification_as_postponed,
+          name='mark_notification_as_postponed'),
 ]
 
