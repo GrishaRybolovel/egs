@@ -88,10 +88,10 @@ WSGI_APPLICATION = 'egs.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': '12345',
-        'HOST': 'localhost',
+        'NAME': 'egs',
+        'USER': 'egs_user',
+        'PASSWORD': 'U1w4XT247CZ1BcE7tJp6pgUOp8IAzATb',
+        'HOST': 'dpg-ciefp06nqql22eisbs80-a',
         'PORT': '5432'
     }
 }
