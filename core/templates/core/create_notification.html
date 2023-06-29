@@ -1,0 +1,83 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+    <div class="container">
+
+                <!-- Outer Row -->
+                <div class="row justify-content-center">
+
+                    <div class="col-xl-10 col-lg-12 col-md-9">
+
+                        <div class="card o-hidden border-0 shadow-lg my-5">
+                            <div class="card-body p-0">
+                                <!-- Nested Row within Card Body -->
+                                <div class="row">
+
+                                    <div class="col-lg-6">
+                                        <div class="p-5">
+                                            <div class="text-center">
+                                                <h1 class="h4 text-gray-900 mb-4">Создать оповещение</h1>
+                                            </div>
+                                              <div class="notification">
+                                                <form method="post" action="{% url 'create_notification' %}">
+                                                  {% csrf_token %}
+                                                  <input class="form-control form-control-user" type="text" name="title" placeholder="Заголовок" required><br>
+                                                  <textarea class="form-control form-control-user" name="message" placeholder="Текст оповещения" required></textarea><br>
+                                                  <button class="btn btn-primary btn-user btn-block" type="submit">Отправить оповещение</button>
+                                                </form>
+                                              </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+    {% for notification in notificationss %}
+            <div class="container">
+
+                <!-- Outer Row -->
+                <div class="row justify-content-center">
+
+                    <div class="col-xl-10 col-lg-12 col-md-9">
+
+                        <div class="card o-hidden border-0 shadow-lg my-5">
+                            <div class="card-body p-0">
+                                <!-- Nested Row within Card Body -->
+                                <div class="row">
+
+                                    <div class="col-lg-6">
+                                        <div class="p-5">
+                                              <div class="notification">
+                                                <h3>{{ notification.title }}</h3>
+                                                <p>{{ notification.message }}</p>
+                                                <p>Created at: {{ notification.created_at }}</p>
+                                                {% if user in notification.users_read.all %}
+                                                  <p>Read</p>
+                                                {% else %}
+                                                  <a href="{% url 'mark_notification_as_read' notification.id %}">Mark as Read</a>
+                                                {% endif %}
+                                              </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            {% endfor %}
+
+
+{% endblock %}
