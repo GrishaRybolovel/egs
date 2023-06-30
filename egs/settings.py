@@ -40,10 +40,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'api.apps.ApiConfig',
     'core.apps.CoreConfig',
     'bot.apps.BotConfig'
     # 'core',
-    # 'bot'
+    # 'bot',
+    # 'api'
     # 'core',
     # 'login'
 ]
@@ -66,7 +68,9 @@ ROOT_URLCONF = 'egs.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates',
+                 BASE_DIR / 'core/templates/core',
+                 BASE_DIR / 'templates/api'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -82,7 +86,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'egs.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
@@ -96,6 +99,18 @@ DATABASES = {
         'PORT': '5432'
     }
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'postgres',
+#         'USER': 'postgres',
+#         'PASSWORD': '12345',
+#         'HOST': 'localhost',
+#         'PORT': '5432'
+#     }
+# }
 
 
 # Password validation
@@ -138,6 +153,13 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
+TEMPLATE_DIRS = (
+    os.path.join(BASE_DIR, 'core/templates/core'),
+    os.path.join(BASE_DIR, 'templates/api'),
+    os.path.join(BASE_DIR, 'templates'),
+    os.path.join(BASE_DIR, 'api')
+)
+
 MEDIA_URL = os.path.join(BASE_DIR, '/media/')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static/media')
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -149,3 +171,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 TOKEN = '6265523731:AAF5IoH5_YCJCj5Me-jFwcC7nlYgY6kRjEY'
 BOT_URL = f'https://api.telegram.org/bot{TOKEN}/'
+
+API_URL = 'https://my2.myheat.net/api/request/'
+API_LOGIN = 'EGS-ODS'
+API_KEY = 'f11f020a-649ebd5dc04832-19594833'

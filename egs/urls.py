@@ -25,6 +25,7 @@ from .settings import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('core/', include('core.urls')),
+    path('api/', include('api.urls')),
     re_path(r'^download/(?P<path>.*)$', serve, {'document_root': MEDIA_ROOT})
 ]
 

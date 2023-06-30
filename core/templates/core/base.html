@@ -57,6 +57,12 @@
                     <span>Оповещения</span></a>
             </li>
 
+            <li class="nav-item active">
+                <a class="nav-link" href="{% url 'devices' %}">
+                    <i class="fas fa-fw fa-sticky-note"></i>
+                    <span>Сестемы</span></a>
+            </li>
+
             {% if user.role == 'DI' %}
             <!-- Divider -->
             <hr class="sidebar-divider">

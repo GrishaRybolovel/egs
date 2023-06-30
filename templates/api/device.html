@@ -1,0 +1,135 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+    <div class="container-fluid">
+        <!-- Card header-->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">Система</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+
+
+        <div class="h5 mb-3 font-weight-bold text-gray-800">Общие сведения о системе:</div>
+        <div class="card shadow h-100 py-2 mb-5">
+        <div class="ml-5">
+
+                    <div class="h6 mb-4 font-weight-bold text-gray-800">Данные актуальны(были получены за последние 20 минут): {{ device.dataActual }}</div>
+                    <div class="h6 mb-4 font-weight-bold text-gray-800">Общий статус системы: {{ device.severity }}</div>
+                    <div class="h6 mb-4 font-weight-bold text-gray-800">Текстовое описание статуса: {{ device.severityDesc }}</div>
+                    <div class="h6 mb-4 font-weight-bold text-gray-800">Уличная температура: {{ device.weatherTemp }}</div>
+                    <div class="h6 mb-4 font-weight-bold text-gray-800">Город: {{ device.city }}</div>
+        </div>
+        </div>
+
+        <div class="h5 mb-0 font-weight-bold text-gray-800">Котлы</div>
+        <div class="card shadow h-100 py-2 mb-5">
+
+        {% for element in device.heaters %}
+                <div class="ml-4">
+                    <div class="h4 mb-4 font-weight-bold text-gray-800">{{ element.name }}</div>
+
+                <!-- Collapsed div body -->
+                <div class="card-body">
+                        <div>ID: {{ element.id }}</div>
+                        <div>Выключен: {{ element.disabled }}</div>
+                        <div>Температура подачи котла: {{ element.flowTemp }}</div>
+                        <div>Температура обратки котла: {{ element.returnTemp }}</div>
+                        <div>Давление: {{ element.pressure }}</div>
+                        <div>Текущее целевое значение в контуре отопления: {{ element.targetTemp }}</div>
+                        <div>Горелка активна - котел греет систему отопления: {{ element.burnerHeating }}</div>
+                        <div>Горелка активна - котел греет ГВС: {{ element.burnerWater }}</div>
+                        <div>Модуляция: {{ element.modulation }}</div>
+                </div>
+                </div>
+            {% empty %}
+            <div class="ml-4">
+                <div class="h4 mb-0 font-weight-bold text-gray-800">Нет котлов</div>
+            </div>
+
+        {% endfor %}
+        </div>
+
+        <div class="h5 mb-0 font-weight-bold text-gray-800">Среды</div>
+        <div class="card shadow h-100 py-2 mb-5">
+        {% for element in device.envs %}
+                <div class="ml-4">
+                    <div class="h4 mb-4 font-weight-bold text-gray-800">{{ element.name }}</div>
+
+                <!-- Collapsed div body -->
+                <div class="card-body">
+                        <div>ID: {{ element.id }}</div>
+                        <div>Тип: {{ element.type }}</div>
+                        <div>Значение: {{ element.value }}</div>
+                        <div>Целевое значение: {{ element.target }}</div>
+                        <div>Среда требует нагрева, дает запрос котлу: {{ element.demand }}</div>
+                        <div>Общий статус системы: {{ element.severity }}</div>
+                        <div>Описание: {{ element.severityDesc }}</div>
+                </div>
+                </div>
+            {% empty %}
+            <div class="ml-4">
+                <div class="h4 mb-0 font-weight-bold text-gray-800">Нет сред</div>
+            </div>
+
+        {% endfor %}
+        </div>
+
+
+        <div class="h5 mb-0 font-weight-bold text-gray-800">Инженерное оборудование</div>
+        <div class="card shadow h-100 py-2 mb-5">
+        {% for element in device.engs %}
+                <div class="ml-4">
+                    <div class="h4 mb-4 font-weight-bold text-gray-800">{{ element.name }}</div>
+
+                <!-- Collapsed div body -->
+                <div class="card-body">
+                        <div>ID: {{ element.id }}</div>
+                        <div>Тип: {{ element.type }}</div>
+                        <div>Включен: {{ element.turnedOn }}</div>
+                        <div>Общий статус системы: {{ element.severity }}</div>
+                        <div>Описание: {{ element.severityDesc }}</div>
+                </div>
+                </div>
+            {% empty %}
+            <div class="ml-4">
+                <div class="h4 mb-0 font-weight-bold text-gray-800">Нет инженерного оборудования</div>
+            </div>
+
+        {% endfor %}
+        </div>
+
+
+        <div class="h5 mb-0 font-weight-bold text-gray-800">Сигналы тревоги</div>
+        <div class="card shadow h-100 py-2 mb-5">
+        {% for element in device.alarms %}
+                <div class="ml-4">
+                    <div class="h4 mb-4 font-weight-bold text-gray-800">{{ element.name }}</div>
+
+                <!-- Collapsed div body -->
+                <div class="card-body">
+                        <div>ID: {{ element.id }}</div>
+                        <div>Тип: {{ element.type }}</div>
+                        <div>Авария: {{ element.alarm }}</div>
+                        <div>Общий статус системы: {{ element.severity }}</div>
+                        <div>Описание: {{ element.severityDesc }}</div>
+                </div>
+                </div>
+            {% empty %}
+            <div class="ml-4">
+                <div class="h4 mb-0 font-weight-bold text-gray-800">Нет сигналов тревоги</div>
+            </div>
+
+        {% endfor %}
+        </div>
+
+
+        </div>
+
+
+    </div>
+{% endblock %}
