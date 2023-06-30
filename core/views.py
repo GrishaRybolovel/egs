@@ -280,8 +280,11 @@ def employee_edit(request, id):
         #     val = getattr(user_object, field.name)
         #     if val is not None:
         #         form_user.initial[f'{field.name}'] = val
+        emp = Employees.objects.filter(email=request.user.email)[0]
+        documents = emp.employee_to_document.all()
         context = {'form': form,
                    'form_user' : form_user,
+                   'documents': documents,
                    'user': Employees.objects.filter(email=request.user.email)[0]}
         return render(request, template_name='core/employee_edit.html', context=context)
 
@@ -800,3 +803,58 @@ def download(request, path):
             response['Content-Disposition'] = 'inline; filename=' + os.path.base_name(file_path)
             return response
     raise Http404
+
+
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_superuser)
+def document_edit_employee(request, id_doc, id_emp):
+    if id_doc == 0:
+        form = DocumentForm()
+        if request.method == 'POST':
+            form = DocumentForm(request.POST, request.FILES)
+            if form.is_valid():
+                print('OK')
+                saved_doc = form.save()
+                Employees.objects.get(pk=id_emp).employee_to_document.add(Documents.objects.get(pk=saved_doc.pk))
+                # Projects.objects.get(pk=id_proj).project_to_document.add(Documents.objects.get(pk=saved_doc.pk))
+                return redirect('employee_edit', id=id_emp)
+            else:
+                print(form.errors)
+                print('ERROR')
+        context = {'form': form,
+                   'user': Employees.objects.filter(email=request.user.email)[0]}
+        return render(request, template_name='core/document_adding.html', context=context)
+    else:
+        document = Documents.objects.get(pk=id_doc)
+        form = DocumentForm()
+        if request.method == 'POST':
+            a = Documents.objects.get(pk=id_doc)
+            form = DocumentForm(request.POST, request.FILES, instance=a)
+            if form.is_valid():
+                form.save()
+                print('OK')
+                return redirect('employee_edit', id=id_emp)
+            else:
+                print(form.errors)
+                print('ERROR')
+        for field in document._meta.fields:
+            val = getattr(document, field.name)
+            if 'duration' in field.name:
+                if val is not None:
+                    form.initial[f'{field.name}'] = val.isoformat()
+            else:
+                if val is not None:
+                    form.initial[f'{field.name}'] = val
+        context = {'document': Documents.objects.get(pk=id_doc),
+                   'form': form,
+                   'user': Employees.objects.filter(email=request.user.email)[0]}
+        return render(request, template_name='core/document_adding.html', context=context)
+
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.is_superuser)
+def document_del_employee(request, id_doc, id_emp):
+    try:
+        Documents.objects.get(pk=id_doc).delete()
+        return redirect('employee_edit', id=id_emp)
+    except:
+        return redirect('employee_edit', id=id_emp)
